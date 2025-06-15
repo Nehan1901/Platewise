@@ -9,6 +9,9 @@ import NotFound from "./pages/NotFound";
 import { ThemeProvider } from "./components/theme-provider";
 import HouseholdDashboard from "./pages/HouseholdDashboard";
 import BusinessDashboard from "./pages/BusinessDashboard";
+import BusinessProfileSetup from "./pages/BusinessProfileSetup";
+import CreateListing from "./pages/CreateListing";
+import MyListings from "./pages/MyListings";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +32,9 @@ const App = () => (
               path="/dashboard-business"
               element={<BusinessDashboard />}
             />
+            <Route path="/business-profile" element={<BusinessProfileSetup />} />
+            <Route path="/create-listing" element={<CreateListing />} />
+            <Route path="/my-listings" element={<MyListings />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
