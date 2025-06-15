@@ -1,6 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 interface ListingCardProps {
   listing: {
@@ -15,9 +16,9 @@ interface ListingCardProps {
 
 const ListingCard = ({ listing }: ListingCardProps) => {
   return (
-    <Card className="w-full overflow-hidden flex flex-col">
-      <CardHeader className="p-0">
-        <img src={listing.image_url} alt={listing.title} className="rounded-t-lg object-cover h-48 w-full" />
+    <Card className="w-full overflow-hidden flex flex-col group cursor-pointer transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-2">
+      <CardHeader className="p-0 overflow-hidden">
+        <img src={listing.image_url} alt={listing.title} className="rounded-t-lg object-cover h-48 w-full transition-transform duration-300 ease-in-out group-hover:scale-105" />
       </CardHeader>
       <CardContent className="p-4 flex-grow">
         <CardTitle className="text-lg mb-1">{listing.title}</CardTitle>
@@ -28,7 +29,10 @@ const ListingCard = ({ listing }: ListingCardProps) => {
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
-        <Button className="w-full">View Deal</Button>
+        <Button className="w-full">
+          View Deal
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
       </CardFooter>
     </Card>
   );
