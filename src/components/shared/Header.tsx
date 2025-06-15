@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { UtensilsCrossed } from "lucide-react";
-import { AuthModal } from "./AuthModal";
+import { AuthModal } from "../auth/AuthModal";
 
 const Header = () => {
   return (
