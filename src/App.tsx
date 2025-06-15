@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { ThemeProvider } from "./components/theme-provider";
+import HouseholdDashboard from "./pages/HouseholdDashboard";
+import BusinessDashboard from "./pages/BusinessDashboard";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +21,14 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route
+              path="/dashboard-household"
+              element={<HouseholdDashboard />}
+            />
+            <Route
+              path="/dashboard-business"
+              element={<BusinessDashboard />}
+            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
@@ -29,4 +39,3 @@ const App = () => (
 );
 
 export default App;
-

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,12 +15,17 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { SocialLogins } from "./SocialLogins";
+import { useNavigate } from "react-router-dom";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const signupSchema = z.object({
   firstName: z.string().min(2, { message: "First name is required." }),
   lastName: z.string().min(2, { message: "Last name is required." }),
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(8, { message: "Password must be at least 8 characters." }),
+  userType: z.enum(["household", "business"], {
+    required_error: "You need to select a user type.",
+  }),
 });
 
 interface SignupFormComponentProps {
@@ -30,9 +34,16 @@ interface SignupFormComponentProps {
 
 export const SignupFormComponent = ({ onSuccess }: SignupFormComponentProps) => {
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
-    defaultValues: { firstName: "", lastName: "", email: "", password: "" },
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      userType: "household",
+    },
   });
 
   function onSubmit(values: z.infer<typeof signupSchema>) {
@@ -41,6 +52,12 @@ export const SignupFormComponent = ({ onSuccess }: SignupFormComponentProps) => 
       description: "Welcome to PlateWise! (This is a demo)",
     });
     onSuccess();
+
+    if (values.userType === "household") {
+      navigate("/dashboard-household");
+    } else {
+      navigate("/dashboard-business");
+    }
   }
 
   return (
@@ -117,6 +134,36 @@ export const SignupFormComponent = ({ onSuccess }: SignupFormComponentProps) => 
                     </span>
                   </Button>
                 </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="userType"
+          render={({ field }) => (
+            <FormItem className="space-y-2">
+              <FormLabel>You are a...</FormLabel>
+              <FormControl>
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  className="flex gap-4"
+                >
+                  <FormItem className="flex items-center space-x-2 space-y-0">
+                    <FormControl>
+                      <RadioGroupItem value="household" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Household</FormLabel>
+                  </FormItem>
+                  <FormItem className="flex items-center space-x-2 space-y-0">
+                    <FormControl>
+                      <RadioGroupItem value="business" />
+                    </FormControl>
+                    <FormLabel className="font-normal">Business Owner</FormLabel>
+                  </FormItem>
+                </RadioGroup>
               </FormControl>
               <FormMessage />
             </FormItem>
