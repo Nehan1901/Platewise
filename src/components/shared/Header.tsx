@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { UtensilsCrossed } from "lucide-react";
+import { AuthModal } from "./AuthModal";
 
 const Header = () => {
   return (
@@ -12,8 +13,12 @@ const Header = () => {
           <span className="text-xl font-bold">PlateWise</span>
         </Link>
         <nav className="flex items-center gap-2">
-          <Button variant="ghost">Log In</Button>
-          <Button>Sign Up</Button>
+          <AuthModal mode="login">
+            <Button variant="ghost">Log In</Button>
+          </AuthModal>
+          <AuthModal mode="signup">
+            <Button>Sign Up</Button>
+          </AuthModal>
         </nav>
       </div>
     </header>
