@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { Facebook } from "lucide-react";
 import { GoogleIcon } from "@/components/icons/GoogleIcon";
@@ -41,9 +40,8 @@ export const SocialLogins = () => (
         Continue with Facebook
       </Button>
       <Button
-        variant="outline"
         type="button"
-        className="w-full"
+        className="w-full bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
         onClick={() => handleSocialLogin("Apple")}
       >
         <AppleIcon className="mr-2 h-4 w-4" />
