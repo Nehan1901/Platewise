@@ -1,8 +1,7 @@
 
 import { toast } from "sonner";
-import { Facebook } from "lucide-react";
+import { Facebook, Apple } from "lucide-react";
 import { GoogleIcon } from "@/components/icons/GoogleIcon";
-import { AppleIcon } from "@/components/icons/AppleIcon";
 import { Button } from "@/components/ui/button";
 
 const handleSocialLogin = (provider: string) => {
@@ -46,9 +45,10 @@ export const SocialLogins = () => (
         className="w-full"
         onClick={() => handleSocialLogin("Apple")}
       >
-        <AppleIcon className="mr-2 h-4 w-4 fill-current" />
+        <Apple className="mr-2 h-4 w-4 fill-current" />
         Continue with Apple
       </Button>
     </div>
   </>
 );
+
