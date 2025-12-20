@@ -12,6 +12,7 @@ import BusinessDashboard from "./pages/BusinessDashboard";
 import BusinessProfileSetup from "./pages/BusinessProfileSetup";
 import CreateListing from "./pages/CreateListing";
 import MyListings from "./pages/MyListings";
+import ListingDetail from "./pages/ListingDetail";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/listing/:id" element={<ListingDetail />} />
             <Route
               path="/dashboard-household"
               element={<HouseholdDashboard />}
