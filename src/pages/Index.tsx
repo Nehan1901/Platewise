@@ -6,14 +6,20 @@ import ListingSection from "@/components/home/ListingSection";
 import BottomNav from "@/components/shared/BottomNav";
 import { useGeolocation, calculateDistance } from "@/hooks/useGeolocation";
 
-// Mock listings with location data
+// Mock listings with multiple high-quality images
 const mockListings = [
   {
     id: "1",
     title: "Surprise Pastry Box",
     original_price: 20.0,
     discounted_price: 6.99,
-    image_url: `https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?q=80&w=1200&auto=format&fit=crop`,
+    image_url: `https://images.unsplash.com/photo-1509440159596-0249088772ff?q=90&w=1200&auto=format&fit=crop`,
+    images: [
+      `https://images.unsplash.com/photo-1509440159596-0249088772ff?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1517433367423-c7e5b0f35086?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1558961363-fa8fdf82db35?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1486427944544-d2c6f7e8c14b?q=90&w=1200&auto=format&fit=crop`,
+    ],
     business_name: "The Corner Bakery",
     latitude: 40.7128,
     longitude: -74.006,
@@ -26,7 +32,12 @@ const mockListings = [
     title: "Artisanal Cheese Platter",
     original_price: 25.0,
     discounted_price: 12.5,
-    image_url: `https://images.unsplash.com/photo-1452195100486-9cc805987862?q=80&w=1200&auto=format&fit=crop`,
+    image_url: `https://images.unsplash.com/photo-1452195100486-9cc805987862?q=90&w=1200&auto=format&fit=crop`,
+    images: [
+      `https://images.unsplash.com/photo-1452195100486-9cc805987862?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1559561853-08451507cbe7?q=90&w=1200&auto=format&fit=crop`,
+    ],
     business_name: "The Gilded Grape",
     latitude: 40.7148,
     longitude: -74.008,
@@ -39,7 +50,13 @@ const mockListings = [
     title: "Gourmet Burger & Fries",
     original_price: 18.5,
     discounted_price: 9.25,
-    image_url: `https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1200&auto=format&fit=crop`,
+    image_url: `https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=90&w=1200&auto=format&fit=crop`,
+    images: [
+      `https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1550547660-d9450f859349?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1571091718767-18b5b1457add?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?q=90&w=1200&auto=format&fit=crop`,
+    ],
     business_name: "Patty's Pub",
     latitude: 40.7108,
     longitude: -74.004,
@@ -52,7 +69,12 @@ const mockListings = [
     title: "Spicy Tuna Roll Set",
     original_price: 16.0,
     discounted_price: 8.0,
-    image_url: `https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?q=80&w=1200&auto=format&fit=crop`,
+    image_url: `https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?q=90&w=1200&auto=format&fit=crop`,
+    images: [
+      `https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1553621042-f6e147245754?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?q=90&w=1200&auto=format&fit=crop`,
+    ],
     business_name: "Sushi Central",
     latitude: 40.7158,
     longitude: -74.002,
@@ -65,7 +87,13 @@ const mockListings = [
     title: "Fresh Veggie Box",
     original_price: 22.0,
     discounted_price: 8.99,
-    image_url: `https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=1200&auto=format&fit=crop`,
+    image_url: `https://images.unsplash.com/photo-1540420773420-3366772f4999?q=90&w=1200&auto=format&fit=crop`,
+    images: [
+      `https://images.unsplash.com/photo-1540420773420-3366772f4999?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1488459716781-31db52582fe9?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1506484381205-f7945b9d3108?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1518843875459-f738682238a6?q=90&w=1200&auto=format&fit=crop`,
+    ],
     business_name: "Green Market Co.",
     latitude: 40.7118,
     longitude: -74.01,
@@ -78,7 +106,12 @@ const mockListings = [
     title: "Wood-Fired Pizza Slice",
     original_price: 12.0,
     discounted_price: 4.99,
-    image_url: `https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=1200&auto=format&fit=crop`,
+    image_url: `https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=90&w=1200&auto=format&fit=crop`,
+    images: [
+      `https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1574071318508-1cdbab80d002?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1513104890138-7c749659a591?q=90&w=1200&auto=format&fit=crop`,
+    ],
     business_name: "Napoli Express",
     latitude: 40.7138,
     longitude: -74.007,

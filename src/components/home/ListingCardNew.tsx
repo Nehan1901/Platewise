@@ -1,5 +1,5 @@
-import { Heart, Star, Clock, MapPin } from "lucide-react";
-import { useState } from "react";
+import { Heart, Star, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils";
 
 interface ListingCardNewProps {
@@ -9,6 +9,7 @@ interface ListingCardNewProps {
     original_price: number;
     discounted_price: number;
     image_url: string;
+    images?: string[];
     business_name: string;
     business_logo?: string;
     distance?: number;
@@ -22,20 +23,138 @@ interface ListingCardNewProps {
 
 const ListingCardNew = ({ listing, badge }: ListingCardNewProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isHovering, setIsHovering] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Use images array or fallback to single image
+  const images = listing.images || [listing.image_url];
   
   // Generate a consistent rating between 3.5-4.9 based on listing id
   const rating = listing.rating || (3.5 + (parseInt(listing.id) * 0.3) % 1.4).toFixed(1);
   const bagType = listing.bag_type || "Surprise Bag";
 
+  // Auto-scroll on hover
+  useEffect(() => {
+    if (isHovering && images.length > 1 && !isDragging) {
+      intervalRef.current = setInterval(() => {
+        setCurrentImageIndex((prev) => (prev + 1) % images.length);
+      }, 2000);
+    }
+    
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isHovering, images.length, isDragging]);
+
+  const goToNext = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  }, [images.length]);
+
+  const goToPrev = useCallback((e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  }, [images.length]);
+
+  // Touch/drag handlers
+  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+    setIsDragging(true);
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    setStartX(clientX);
+  };
+
+  const handleDragEnd = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : e.clientX;
+    const diff = startX - clientX;
+    
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        goToNext();
+      } else {
+        goToPrev();
+      }
+    }
+  };
+
   return (
     <article className="group cursor-pointer">
       {/* Image Container */}
-      <div className="relative overflow-hidden rounded-xl aspect-[4/3] bg-muted">
-        <img
-          src={listing.image_url}
-          alt={listing.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+      <div 
+        className="relative overflow-hidden rounded-xl aspect-[4/3] bg-muted"
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+        onMouseDown={handleDragStart}
+        onMouseUp={handleDragEnd}
+        onTouchStart={handleDragStart}
+        onTouchEnd={handleDragEnd}
+      >
+        {/* Images */}
+        <div 
+          className="flex h-full transition-transform duration-500 ease-out"
+          style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
+        >
+          {images.map((img, idx) => (
+            <img
+              key={idx}
+              src={img}
+              alt={`${listing.title} ${idx + 1}`}
+              className="w-full h-full object-cover flex-shrink-0"
+              draggable={false}
+            />
+          ))}
+        </div>
+        
+        {/* Navigation Arrows - Show on hover */}
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={goToPrev}
+              className={cn(
+                "absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-card/90 backdrop-blur-sm flex items-center justify-center shadow-lg transition-opacity duration-300",
+                isHovering ? "opacity-100" : "opacity-0"
+              )}
+            >
+              <ChevronLeft className="h-4 w-4 text-foreground" />
+            </button>
+            <button
+              onClick={goToNext}
+              className={cn(
+                "absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-card/90 backdrop-blur-sm flex items-center justify-center shadow-lg transition-opacity duration-300",
+                isHovering ? "opacity-100" : "opacity-0"
+              )}
+            >
+              <ChevronRight className="h-4 w-4 text-foreground" />
+            </button>
+          </>
+        )}
+        
+        {/* Dots Indicator */}
+        {images.length > 1 && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+            {images.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentImageIndex(idx);
+                }}
+                className={cn(
+                  "w-1.5 h-1.5 rounded-full transition-all duration-300",
+                  idx === currentImageIndex 
+                    ? "bg-card w-4" 
+                    : "bg-card/60 hover:bg-card/80"
+                )}
+              />
+            ))}
+          </div>
+        )}
         
         {/* Rating Badge */}
         <div className="absolute top-3 right-3 flex items-center gap-1 bg-card/95 backdrop-blur-sm px-2 py-1 rounded-lg shadow-sm">
