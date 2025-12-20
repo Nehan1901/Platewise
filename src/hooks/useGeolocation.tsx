@@ -9,6 +9,7 @@ interface GeolocationState {
 
 interface UseGeolocationReturn extends GeolocationState {
   requestLocation: () => void;
+  setManualLocation: (lat: number, lon: number, name: string) => void;
   locationName: string | null;
 }
 
@@ -75,9 +76,20 @@ export const useGeolocation = (): UseGeolocationReturn => {
     );
   }, []);
 
+  const setManualLocation = useCallback((lat: number, lon: number, name: string) => {
+    setState({
+      latitude: lat,
+      longitude: lon,
+      error: null,
+      loading: false,
+    });
+    setLocationName(name);
+  }, []);
+
   return {
     ...state,
     requestLocation,
+    setManualLocation,
     locationName,
   };
 };
