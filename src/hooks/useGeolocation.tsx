@@ -31,14 +31,16 @@ export const useGeolocation = (): UseGeolocationReturn => {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
         setState({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
+          latitude: lat,
+          longitude: lon,
           error: null,
           loading: false,
         });
-        // Simple reverse geocoding simulation - in production, use a real API
-        setLocationName('Your Area');
+        // Show a readable location indicator
+        setLocationName(`Near ${lat.toFixed(2)}°, ${lon.toFixed(2)}°`);
       },
       (error) => {
         let errorMessage = 'Unable to retrieve your location';
