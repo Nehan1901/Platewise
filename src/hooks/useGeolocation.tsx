@@ -30,7 +30,7 @@ export const useGeolocation = (): UseGeolocationReturn => {
     setState(prev => ({ ...prev, loading: true, error: null }));
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
         setState({
@@ -39,8 +39,18 @@ export const useGeolocation = (): UseGeolocationReturn => {
           error: null,
           loading: false,
         });
-        // Show a readable location indicator
-        setLocationName(`Near ${lat.toFixed(2)}°, ${lon.toFixed(2)}°`);
+        
+        // Reverse geocode to get city name using free API
+        try {
+          const response = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
+          );
+          const data = await response.json();
+          const cityName = data.city || data.locality || data.principalSubdivision || 'Your Area';
+          setLocationName(cityName);
+        } catch {
+          setLocationName('Your Area');
+        }
       },
       (error) => {
         let errorMessage = 'Unable to retrieve your location';
