@@ -13,6 +13,7 @@ const mockListings = [
     title: "Surprise Pastry Box",
     original_price: 20.0,
     discounted_price: 6.99,
+    category: "bread",
     image_url: `https://images.unsplash.com/photo-1509440159596-0249088772ff?q=90&w=1200&auto=format&fit=crop`,
     images: [
       `https://images.unsplash.com/photo-1509440159596-0249088772ff?q=90&w=1200&auto=format&fit=crop`,
@@ -32,6 +33,7 @@ const mockListings = [
     title: "Artisanal Cheese Platter",
     original_price: 25.0,
     discounted_price: 12.5,
+    category: "groceries",
     image_url: `https://images.unsplash.com/photo-1452195100486-9cc805987862?q=90&w=1200&auto=format&fit=crop`,
     images: [
       `https://images.unsplash.com/photo-1452195100486-9cc805987862?q=90&w=1200&auto=format&fit=crop`,
@@ -50,6 +52,7 @@ const mockListings = [
     title: "Gourmet Burger & Fries",
     original_price: 18.5,
     discounted_price: 9.25,
+    category: "meals",
     image_url: `https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=90&w=1200&auto=format&fit=crop`,
     images: [
       `https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=90&w=1200&auto=format&fit=crop`,
@@ -69,6 +72,7 @@ const mockListings = [
     title: "Spicy Tuna Roll Set",
     original_price: 16.0,
     discounted_price: 8.0,
+    category: "sushi",
     image_url: `https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?q=90&w=1200&auto=format&fit=crop`,
     images: [
       `https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?q=90&w=1200&auto=format&fit=crop`,
@@ -87,6 +91,7 @@ const mockListings = [
     title: "Fresh Veggie Box",
     original_price: 22.0,
     discounted_price: 8.99,
+    category: "groceries",
     image_url: `https://images.unsplash.com/photo-1540420773420-3366772f4999?q=90&w=1200&auto=format&fit=crop`,
     images: [
       `https://images.unsplash.com/photo-1540420773420-3366772f4999?q=90&w=1200&auto=format&fit=crop`,
@@ -106,6 +111,7 @@ const mockListings = [
     title: "Wood-Fired Pizza Slice",
     original_price: 12.0,
     discounted_price: 4.99,
+    category: "pizza",
     image_url: `https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=90&w=1200&auto=format&fit=crop`,
     images: [
       `https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=90&w=1200&auto=format&fit=crop`,
@@ -118,6 +124,43 @@ const mockListings = [
     pickup_time: "9-10 PM",
     items_left: 6,
     bag_type: "Pizza Box",
+  },
+  {
+    id: "7",
+    title: "Chocolate Cake Surprise",
+    original_price: 28.0,
+    discounted_price: 12.99,
+    category: "desserts",
+    image_url: `https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=90&w=1200&auto=format&fit=crop`,
+    images: [
+      `https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1565958011703-44f9829ba187?q=90&w=1200&auto=format&fit=crop`,
+    ],
+    business_name: "Sweet Delights",
+    latitude: 40.7098,
+    longitude: -74.003,
+    pickup_time: "5-7 PM",
+    items_left: 2,
+    bag_type: "Dessert Box",
+  },
+  {
+    id: "8",
+    title: "Grilled Chicken Meal",
+    original_price: 15.0,
+    discounted_price: 7.5,
+    category: "meals",
+    image_url: `https://images.unsplash.com/photo-1532550907401-a500c9a57435?q=90&w=1200&auto=format&fit=crop`,
+    images: [
+      `https://images.unsplash.com/photo-1532550907401-a500c9a57435?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?q=90&w=1200&auto=format&fit=crop`,
+    ],
+    business_name: "The Grill House",
+    latitude: 40.7168,
+    longitude: -74.009,
+    pickup_time: "6-8 PM",
+    items_left: 4,
+    bag_type: "Dinner Bag",
   },
 ];
 
@@ -150,9 +193,17 @@ const Index = () => {
     });
   }, [latitude, longitude]);
 
+  // Filter by category
+  const filteredListings = useMemo(() => {
+    if (selectedCategory === "all") {
+      return listingsWithDistance;
+    }
+    return listingsWithDistance.filter(listing => listing.category === selectedCategory);
+  }, [listingsWithDistance, selectedCategory]);
+
   // Split listings into sections
-  const topPicks = listingsWithDistance.slice(0, 4);
-  const endingSoon = listingsWithDistance.slice(2, 6);
+  const topPicks = filteredListings.slice(0, 4);
+  const endingSoon = filteredListings.slice(2, 6);
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
