@@ -27,10 +27,9 @@ const ListingCardNew = ({ listing, badge }: ListingCardNewProps) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [hasDragged, setHasDragged] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const dragStartRef = useRef<{ x: number; y: number } | null>(null);
+  const hasDraggedRef = useRef(false);
   
   // Use images array or fallback to single image
   const images = listing.images || [listing.image_url];
@@ -41,7 +40,7 @@ const ListingCardNew = ({ listing, badge }: ListingCardNewProps) => {
 
   // Auto-scroll on hover
   useEffect(() => {
-    if (isHovering && images.length > 1 && !isDragging) {
+    if (isHovering && images.length > 1) {
       intervalRef.current = setInterval(() => {
         setCurrentImageIndex((prev) => (prev + 1) % images.length);
       }, 2000);
@@ -52,47 +51,52 @@ const ListingCardNew = ({ listing, badge }: ListingCardNewProps) => {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isHovering, images.length, isDragging]);
+  }, [isHovering, images.length]);
 
   const goToNext = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
+    e?.preventDefault();
     setCurrentImageIndex((prev) => (prev + 1) % images.length);
   }, [images.length]);
 
   const goToPrev = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
+    e?.preventDefault();
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   }, [images.length]);
 
-  // Touch/drag handlers
-  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
-    setIsDragging(true);
-    setHasDragged(false);
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    setStartX(clientX);
+  // Touch/drag handlers for image carousel
+  const handlePointerDown = (e: React.PointerEvent) => {
+    dragStartRef.current = { x: e.clientX, y: e.clientY };
+    hasDraggedRef.current = false;
   };
 
-  const handleDragEnd = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!isDragging) return;
-    setIsDragging(false);
-    const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : e.clientX;
-    const diff = startX - clientX;
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!dragStartRef.current) return;
     
-    if (Math.abs(diff) > 50) {
-      setHasDragged(true);
-      if (diff > 0) {
-        goToNext();
+    const diffX = e.clientX - dragStartRef.current.x;
+    const diffY = e.clientY - dragStartRef.current.y;
+    
+    // If significant horizontal drag, change image
+    if (Math.abs(diffX) > 30 && Math.abs(diffX) > Math.abs(diffY)) {
+      hasDraggedRef.current = true;
+      if (diffX < 0) {
+        setCurrentImageIndex((prev) => (prev + 1) % images.length);
       } else {
-        goToPrev();
+        setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
       }
     }
+    
+    dragStartRef.current = null;
   };
 
-  const handleCardClick = () => {
-    if (!hasDragged) {
-      navigate(`/listing/${listing.id}`);
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't navigate if we just dragged
+    if (hasDraggedRef.current) {
+      hasDraggedRef.current = false;
+      return;
     }
-    setHasDragged(false);
+    navigate(`/listing/${listing.id}`);
   };
 
   return (
@@ -102,10 +106,8 @@ const ListingCardNew = ({ listing, badge }: ListingCardNewProps) => {
         className="relative overflow-hidden rounded-xl aspect-[4/3] bg-muted"
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
-        onMouseDown={handleDragStart}
-        onMouseUp={handleDragEnd}
-        onTouchStart={handleDragStart}
-        onTouchEnd={handleDragEnd}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
       >
         {/* Images */}
         <div 
