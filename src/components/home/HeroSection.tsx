@@ -7,6 +7,7 @@ interface HeroSectionProps {
   locationLoading: boolean;
   locationError: string | null;
   onRequestLocation: () => void;
+  onLocationSelect: (lat: number, lon: number, name: string) => void;
   searchQuery: string;
   onSearchChange: (value: string) => void;
 }
@@ -16,6 +17,7 @@ const HeroSection = ({
   locationLoading,
   locationError,
   onRequestLocation,
+  onLocationSelect,
   searchQuery,
   onSearchChange,
 }: HeroSectionProps) => {
@@ -48,6 +50,7 @@ const HeroSection = ({
               loading={locationLoading}
               error={locationError}
               onRequestLocation={onRequestLocation}
+              onLocationSelect={onLocationSelect}
             />
           </div>
         </div>

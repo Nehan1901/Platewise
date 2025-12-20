@@ -82,7 +82,7 @@ const mockListings = [
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const { latitude, longitude, loading, error, requestLocation, locationName } = useGeolocation();
+  const { latitude, longitude, loading, error, requestLocation, setManualLocation, locationName } = useGeolocation();
 
   // Request location on mount
   useEffect(() => {
@@ -128,6 +128,7 @@ const Index = () => {
           locationLoading={loading}
           locationError={error}
           onRequestLocation={requestLocation}
+          onLocationSelect={setManualLocation}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
         />
