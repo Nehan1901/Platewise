@@ -1,7 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
 import Header from "@/components/shared/Header";
 import HeroSection from "@/components/home/HeroSection";
-import ListingsGrid from "@/components/home/ListingsGrid";
+import CategoryFilters from "@/components/home/CategoryFilters";
+import ListingSection from "@/components/home/ListingSection";
+import BottomNav from "@/components/shared/BottomNav";
 import { useGeolocation, calculateDistance } from "@/hooks/useGeolocation";
 
 // Mock listings with location data
@@ -17,18 +19,20 @@ const mockListings = [
     longitude: -74.006,
     pickup_time: "6-8 PM",
     items_left: 3,
+    bag_type: "Evening Bag",
   },
   {
     id: "2",
     title: "Artisanal Cheese Platter",
     original_price: 25.0,
     discounted_price: 12.5,
-    image_url: `https://images.unsplash.com/photo-1627998994246-a41eda1a76b5?q=80&w=1200&auto=format&fit=crop`,
+    image_url: `https://images.unsplash.com/photo-1452195100486-9cc805987862?q=80&w=1200&auto=format&fit=crop`,
     business_name: "The Gilded Grape",
     latitude: 40.7148,
     longitude: -74.008,
     pickup_time: "7-9 PM",
     items_left: 5,
+    bag_type: "Cheese Box",
   },
   {
     id: "3",
@@ -41,6 +45,7 @@ const mockListings = [
     longitude: -74.004,
     pickup_time: "8-10 PM",
     items_left: 2,
+    bag_type: "Dinner Bag",
   },
   {
     id: "4",
@@ -53,6 +58,7 @@ const mockListings = [
     longitude: -74.002,
     pickup_time: "5-7 PM",
     items_left: 4,
+    bag_type: "Sushi Box",
   },
   {
     id: "5",
@@ -65,6 +71,7 @@ const mockListings = [
     longitude: -74.01,
     pickup_time: "4-6 PM",
     items_left: 8,
+    bag_type: "Grocery Box",
   },
   {
     id: "6",
@@ -77,11 +84,13 @@ const mockListings = [
     longitude: -74.007,
     pickup_time: "9-10 PM",
     items_left: 6,
+    bag_type: "Pizza Box",
   },
 ];
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const { latitude, longitude, loading, error, requestLocation, setManualLocation, locationName } = useGeolocation();
 
   // Request location on mount
@@ -108,19 +117,12 @@ const Index = () => {
     });
   }, [latitude, longitude]);
 
-  // Filter by search query
-  const filteredListings = useMemo(() => {
-    if (!searchQuery.trim()) return listingsWithDistance;
-    const query = searchQuery.toLowerCase();
-    return listingsWithDistance.filter(
-      (listing) =>
-        listing.title.toLowerCase().includes(query) ||
-        listing.business_name.toLowerCase().includes(query)
-    );
-  }, [listingsWithDistance, searchQuery]);
+  // Split listings into sections
+  const topPicks = listingsWithDistance.slice(0, 4);
+  const endingSoon = listingsWithDistance.slice(2, 6);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
       <Header />
       <main>
         <HeroSection
@@ -133,15 +135,32 @@ const Index = () => {
           onSearchChange={setSearchQuery}
         />
         
-        <div className="container mx-auto px-4 md:px-6">
-          <ListingsGrid
-            listings={filteredListings}
-            title="Available Near You"
-            subtitle={latitude ? `Sorted by distance from your location` : "Enable location for personalized results"}
+        {/* Category Filters */}
+        <div className="py-3 bg-background sticky top-0 z-40 border-b border-border">
+          <CategoryFilters
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+          />
+        </div>
+        
+        {/* Listing Sections */}
+        <div className="space-y-2 py-4">
+          <ListingSection
+            title="Top picks near you"
+            listings={topPicks}
+            loading={false}
+          />
+          
+          <ListingSection
+            title="Save before it's too late"
+            listings={endingSoon}
+            badge="Ending soon"
             loading={false}
           />
         </div>
       </main>
+      
+      <BottomNav />
     </div>
   );
 };
