@@ -1,4 +1,4 @@
-import { Heart, Star, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart, Star, Clock, ChevronLeft, ChevronRight, Store } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils";
 
@@ -169,12 +169,11 @@ const ListingCardNew = ({ listing, badge }: ListingCardNewProps) => {
           </div>
         )}
         
-        {/* Business Logo */}
         <div className="absolute bottom-3 left-3 w-12 h-12 rounded-xl bg-card shadow-lg overflow-hidden border-2 border-card flex items-center justify-center">
           {listing.business_logo ? (
             <img src={listing.business_logo} alt={listing.business_name} className="w-full h-full object-cover" />
           ) : (
-            <span className="text-lg font-bold text-primary">{listing.business_name.charAt(0)}</span>
+            <Store className="h-6 w-6 text-primary" />
           )}
         </div>
       </div>
