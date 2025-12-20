@@ -1,5 +1,6 @@
 import { Heart, Star, Clock, ChevronLeft, ChevronRight, Store } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 interface ListingCardNewProps {
@@ -22,11 +23,13 @@ interface ListingCardNewProps {
 }
 
 const ListingCardNew = ({ listing, badge }: ListingCardNewProps) => {
+  const navigate = useNavigate();
   const [isFavorite, setIsFavorite] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
+  const [hasDragged, setHasDragged] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
   // Use images array or fallback to single image
@@ -64,6 +67,7 @@ const ListingCardNew = ({ listing, badge }: ListingCardNewProps) => {
   // Touch/drag handlers
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     setIsDragging(true);
+    setHasDragged(false);
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     setStartX(clientX);
   };
@@ -75,6 +79,7 @@ const ListingCardNew = ({ listing, badge }: ListingCardNewProps) => {
     const diff = startX - clientX;
     
     if (Math.abs(diff) > 50) {
+      setHasDragged(true);
       if (diff > 0) {
         goToNext();
       } else {
@@ -83,8 +88,15 @@ const ListingCardNew = ({ listing, badge }: ListingCardNewProps) => {
     }
   };
 
+  const handleCardClick = () => {
+    if (!hasDragged) {
+      navigate(`/listing/${listing.id}`);
+    }
+    setHasDragged(false);
+  };
+
   return (
-    <article className="group cursor-pointer">
+    <article className="group cursor-pointer" onClick={handleCardClick}>
       {/* Image Container */}
       <div 
         className="relative overflow-hidden rounded-xl aspect-[4/3] bg-muted"
