@@ -148,8 +148,8 @@ const ListingCardNew = ({ listing, badge }: ListingCardNewProps) => {
                 className={cn(
                   "w-1.5 h-1.5 rounded-full transition-all duration-300",
                   idx === currentImageIndex 
-                    ? "bg-card w-4" 
-                    : "bg-card/60 hover:bg-card/80"
+                    ? "bg-white w-4" 
+                    : "bg-white/60 hover:bg-white/80"
                 )}
               />
             ))}
