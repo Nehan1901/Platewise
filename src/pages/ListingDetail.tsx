@@ -454,7 +454,7 @@ const ListingDetail = () => {
           <Button 
             variant="ghost" 
             size="icon" 
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/")}
             className="bg-card/80 backdrop-blur-sm hover:bg-card shadow-lg"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -698,7 +698,10 @@ const ListingDetail = () => {
             <Navigation className="h-5 w-5 mr-2" />
             Directions
           </Button>
-          <Button className="flex-1">
+          <Button 
+            className="flex-1"
+            onClick={() => navigate(`/checkout/${listing.id}`)}
+          >
             Reserve
           </Button>
         </div>
