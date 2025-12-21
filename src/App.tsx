@@ -13,6 +13,8 @@ import BusinessProfileSetup from "./pages/BusinessProfileSetup";
 import CreateListing from "./pages/CreateListing";
 import MyListings from "./pages/MyListings";
 import ListingDetail from "./pages/ListingDetail";
+import Checkout from "./pages/Checkout";
+import OrderConfirmation from "./pages/OrderConfirmation";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +39,8 @@ const App = () => (
             <Route path="/business-profile" element={<BusinessProfileSetup />} />
             <Route path="/create-listing" element={<CreateListing />} />
             <Route path="/my-listings" element={<MyListings />} />
+            <Route path="/checkout/:id" element={<Checkout />} />
+            <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
