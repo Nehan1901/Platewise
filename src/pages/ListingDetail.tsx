@@ -402,21 +402,76 @@ const ListingDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b">
+    <div className="min-h-screen bg-background">
+      {/* Fixed Background Hero Image */}
+      <div className="fixed inset-x-0 top-0 h-72 z-0">
+        <img
+          src={listing.images[currentImageIndex]}
+          alt={listing.title}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
+        
+        {/* Image Carousel Controls */}
+        {listing.images.length > 1 && (
+          <>
+            <button
+              onClick={goToPrevImage}
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-card transition-colors"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button
+              onClick={goToNextImage}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-card/80 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-card transition-colors"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-2">
+              {listing.images.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentImageIndex(idx)}
+                  className={cn(
+                    "w-2 h-2 rounded-full transition-all shadow-sm",
+                    idx === currentImageIndex ? "bg-white w-6" : "bg-white/60 hover:bg-white/80"
+                  )}
+                />
+              ))}
+            </div>
+          </>
+        )}
+        
+        {/* Discount Badge */}
+        <Badge className="absolute top-16 left-4 bg-primary text-primary-foreground shadow-lg">
+          {discount}% OFF
+        </Badge>
+      </div>
+
+      {/* Floating Header */}
+      <header className="fixed top-0 left-0 right-0 z-50">
         <div className="flex items-center justify-between p-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => navigate(-1)}
+            className="bg-card/80 backdrop-blur-sm hover:bg-card shadow-lg"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex gap-2">
-            <Button variant="ghost" size="icon">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="bg-card/80 backdrop-blur-sm hover:bg-card shadow-lg"
+            >
               <Share2 className="h-5 w-5" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setIsFavorite(!isFavorite)}
+              className="bg-card/80 backdrop-blur-sm hover:bg-card shadow-lg"
             >
               <Heart className={cn("h-5 w-5", isFavorite && "fill-primary text-primary")} />
             </Button>
@@ -424,48 +479,14 @@ const ListingDetail = () => {
         </div>
       </header>
 
-      {/* Image Carousel */}
-      <div className="relative aspect-[4/3] bg-muted">
-        <img
-          src={listing.images[currentImageIndex]}
-          alt={listing.title}
-          className="w-full h-full object-cover"
-        />
-        {listing.images.length > 1 && (
-          <>
-            <button
-              onClick={goToPrevImage}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-card/90 backdrop-blur-sm flex items-center justify-center shadow-lg"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              onClick={goToNextImage}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-card/90 backdrop-blur-sm flex items-center justify-center shadow-lg"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-              {listing.images.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setCurrentImageIndex(idx)}
-                  className={cn(
-                    "w-2 h-2 rounded-full transition-all",
-                    idx === currentImageIndex ? "bg-white w-6" : "bg-white/60"
-                  )}
-                />
-              ))}
+      {/* Scrollable Content Card */}
+      <div className="relative z-10 mt-56 pb-28">
+        <div className="bg-background rounded-t-3xl shadow-2xl min-h-screen">
+          <div className="p-5 space-y-6">
+            {/* Drag Handle */}
+            <div className="flex justify-center">
+              <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
             </div>
-          </>
-        )}
-        <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground">
-          {discount}% OFF
-        </Badge>
-      </div>
-
-      {/* Content */}
-      <div className="p-4 space-y-6">
         {/* Title & Price */}
         <div>
           <div className="flex items-start justify-between gap-4">
@@ -654,10 +675,12 @@ const ListingDetail = () => {
           <h2 className="font-semibold text-lg">Location</h2>
           <ListingMap latitude={listing.latitude} longitude={listing.longitude} businessName={listing.business_name} />
         </div>
+          </div>
+        </div>
       </div>
 
       {/* Bottom Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t z-50">
         <div className="flex gap-3">
           <Button
             variant="outline"
@@ -673,7 +696,7 @@ const ListingDetail = () => {
             onClick={handleGetDirections}
           >
             <Navigation className="h-5 w-5 mr-2" />
-            Get Directions
+            Directions
           </Button>
           <Button className="flex-1">
             Reserve
