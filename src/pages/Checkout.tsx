@@ -161,7 +161,7 @@ const Checkout = () => {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background border-b">
         <div className="flex items-center gap-4 p-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <Button variant="ghost" size="icon" onClick={() => navigate(`/listing/${id}`)}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </div>
