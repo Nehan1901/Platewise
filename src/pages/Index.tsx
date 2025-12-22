@@ -161,6 +161,79 @@ const mockListings = [
     items_left: 4,
     bag_type: "Dinner Bag",
   },
+  // Free listings - restaurants giving away food before closing
+  {
+    id: "9",
+    title: "Leftover Sandwich Platter",
+    original_price: 18.0,
+    discounted_price: 0,
+    category: "meals",
+    image_url: `https://images.unsplash.com/photo-1528735602780-2552fd46c7af?q=90&w=1200&auto=format&fit=crop`,
+    images: [
+      `https://images.unsplash.com/photo-1528735602780-2552fd46c7af?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1553909489-cd47e0907980?q=90&w=1200&auto=format&fit=crop`,
+    ],
+    business_name: "Deli Express",
+    latitude: 40.7188,
+    longitude: -74.005,
+    pickup_time: "9-10 PM",
+    items_left: 2,
+    bag_type: "Closing Time Giveaway",
+  },
+  {
+    id: "10",
+    title: "Day-Old Croissants",
+    original_price: 12.0,
+    discounted_price: 0,
+    category: "bread",
+    image_url: `https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=90&w=1200&auto=format&fit=crop`,
+    images: [
+      `https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1530610476181-d83430b64dcd?q=90&w=1200&auto=format&fit=crop`,
+    ],
+    business_name: "French Bakery",
+    latitude: 40.7078,
+    longitude: -74.011,
+    pickup_time: "8-9 PM",
+    items_left: 6,
+    bag_type: "Free Pastries",
+  },
+  {
+    id: "11",
+    title: "Mixed Salad Bowl",
+    original_price: 14.0,
+    discounted_price: 0,
+    category: "meals",
+    image_url: `https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=90&w=1200&auto=format&fit=crop`,
+    images: [
+      `https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1540420773420-3366772f4999?q=90&w=1200&auto=format&fit=crop`,
+    ],
+    business_name: "Healthy Bites Cafe",
+    latitude: 40.7198,
+    longitude: -74.002,
+    pickup_time: "7-8 PM",
+    items_left: 3,
+    bag_type: "Zero Waste Initiative",
+  },
+  {
+    id: "12",
+    title: "Closing Time Pizza",
+    original_price: 16.0,
+    discounted_price: 0,
+    category: "pizza",
+    image_url: `https://images.unsplash.com/photo-1604382355076-af4b0eb60143?q=90&w=1200&auto=format&fit=crop`,
+    images: [
+      `https://images.unsplash.com/photo-1604382355076-af4b0eb60143?q=90&w=1200&auto=format&fit=crop`,
+      `https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=90&w=1200&auto=format&fit=crop`,
+    ],
+    business_name: "Tony's Pizzeria",
+    latitude: 40.7058,
+    longitude: -74.008,
+    pickup_time: "10-11 PM",
+    items_left: 4,
+    bag_type: "Free Before Close",
+  },
 ];
 
 const Index = () => {
@@ -201,8 +274,9 @@ const Index = () => {
   }, [listingsWithDistance, selectedCategory]);
 
   // Split listings into sections
-  const topPicks = filteredListings.slice(0, 4);
-  const endingSoon = filteredListings.slice(2, 6);
+  const topPicks = filteredListings.filter(l => l.discounted_price > 0).slice(0, 4);
+  const endingSoon = filteredListings.filter(l => l.discounted_price > 0).slice(2, 6);
+  const freeListings = filteredListings.filter(l => l.discounted_price === 0);
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
@@ -231,6 +305,14 @@ const Index = () => {
             badge="Ending soon"
             loading={false}
           />
+          
+          {freeListings.length > 0 && (
+            <ListingSection
+              title="Free food — rescue before it's trashed"
+              listings={freeListings}
+              loading={false}
+            />
+          )}
         </div>
       </main>
       
