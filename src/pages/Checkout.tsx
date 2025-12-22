@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, CreditCard, Clock, MapPin, Check, Shield, Apple, Wallet } from "lucide-react";
+import { ArrowLeft, CreditCard, Clock, MapPin, Check, Shield, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
+import { ApplePayIcon, PaymentCardIcon, PayPalIcon, CashAppIcon } from "@/components/icons/PaymentIcons";
 
-type PaymentMethod = "apple_pay" | "card" | "paypal";
+type PaymentMethod = "apple_pay" | "card" | "paypal" | "cash_app";
 
 // Mock listing data for checkout
 const mockListings: Record<string, { id: string; title: string; business_name: string; discounted_price: number; original_price: number; pickup_time: string; address: string; image: string }> = {
@@ -109,22 +110,24 @@ const Checkout = () => {
 
   const paymentMethods = [
     {
-      id: "apple_pay" as PaymentMethod,
-      name: "Apple Pay",
-      icon: <Apple className="h-5 w-5" />,
-      description: "Pay with Apple Pay",
+      id: "card" as PaymentMethod,
+      name: "Payment card",
+      icon: <PaymentCardIcon />,
     },
     {
-      id: "card" as PaymentMethod,
-      name: "Credit or Debit Card",
-      icon: <CreditCard className="h-5 w-5" />,
-      description: "Visa, Mastercard, Amex",
+      id: "apple_pay" as PaymentMethod,
+      name: "Apple Pay",
+      icon: <ApplePayIcon />,
     },
     {
       id: "paypal" as PaymentMethod,
       name: "PayPal",
-      icon: <Wallet className="h-5 w-5" />,
-      description: "Pay with your PayPal account",
+      icon: <PayPalIcon />,
+    },
+    {
+      id: "cash_app" as PaymentMethod,
+      name: "Cash App Pay",
+      icon: <CashAppIcon />,
     },
   ];
 
@@ -192,30 +195,11 @@ const Checkout = () => {
               >
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        selectedPayment === method.id
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      {method.icon}
-                    </div>
+                    {method.icon}
                     <div className="flex-1">
                       <p className="font-medium">{method.name}</p>
-                      <p className="text-sm text-muted-foreground">{method.description}</p>
                     </div>
-                    <div
-                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        selectedPayment === method.id
-                          ? "border-primary bg-primary"
-                          : "border-muted-foreground/30"
-                      }`}
-                    >
-                      {selectedPayment === method.id && (
-                        <Check className="h-3 w-3 text-primary-foreground" />
-                      )}
-                    </div>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
                   </div>
                 </CardContent>
               </Card>
@@ -284,7 +268,7 @@ const Checkout = () => {
         {selectedPayment === "paypal" && (
           <div className="space-y-4">
             <h2 className="font-semibold text-lg flex items-center gap-2">
-              <Wallet className="h-5 w-5 text-primary" />
+              <PayPalIcon />
               PayPal Details
             </h2>
 
@@ -304,9 +288,23 @@ const Checkout = () => {
         {/* Apple Pay - No additional details needed */}
         {selectedPayment === "apple_pay" && (
           <div className="p-4 bg-muted rounded-lg text-center">
-            <Apple className="h-8 w-8 mx-auto mb-2" />
+            <div className="flex justify-center mb-2">
+              <ApplePayIcon />
+            </div>
             <p className="text-sm text-muted-foreground">
               You'll be redirected to Apple Pay to complete your purchase
+            </p>
+          </div>
+        )}
+
+        {/* Cash App Pay - No additional details needed */}
+        {selectedPayment === "cash_app" && (
+          <div className="p-4 bg-muted rounded-lg text-center">
+            <div className="flex justify-center mb-2">
+              <CashAppIcon />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              You'll be redirected to Cash App to complete your purchase
             </p>
           </div>
         )}
@@ -357,9 +355,10 @@ const Checkout = () => {
             </div>
           ) : (
             <>
-              {selectedPayment === "apple_pay" && <Apple className="h-5 w-5 mr-2" />}
+              {selectedPayment === "apple_pay" && <span className="mr-2"><ApplePayIcon /></span>}
               {selectedPayment === "card" && <CreditCard className="h-5 w-5 mr-2" />}
-              {selectedPayment === "paypal" && <Wallet className="h-5 w-5 mr-2" />}
+              {selectedPayment === "paypal" && <span className="mr-2"><PayPalIcon /></span>}
+              {selectedPayment === "cash_app" && <span className="mr-2"><CashAppIcon /></span>}
               Pay ${total.toFixed(2)}
             </>
           )}
