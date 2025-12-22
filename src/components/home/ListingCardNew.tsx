@@ -2,6 +2,7 @@ import { Heart, Star, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useFavorites } from "@/contexts/FavoritesContext";
 
 interface ListingCardNewProps {
   listing: {
@@ -24,7 +25,7 @@ interface ListingCardNewProps {
 
 const ListingCardNew = ({ listing, badge }: ListingCardNewProps) => {
   const navigate = useNavigate();
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -195,14 +196,14 @@ const ListingCardNew = ({ listing, badge }: ListingCardNewProps) => {
           <button 
             onClick={(e) => {
               e.stopPropagation();
-              setIsFavorite(!isFavorite);
+              toggleFavorite(listing.id);
             }}
             className="flex-shrink-0 p-1 -m-1 transition-transform hover:scale-110 active:scale-95"
           >
             <Heart 
               className={cn(
                 "h-5 w-5 transition-colors",
-                isFavorite 
+                isFavorite(listing.id) 
                   ? "fill-primary text-primary" 
                   : "text-muted-foreground hover:text-primary"
               )} 

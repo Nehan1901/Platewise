@@ -6,8 +6,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Discover from "./pages/Discover";
+import Favorites from "./pages/Favorites";
 import NotFound from "./pages/NotFound";
 import { ThemeProvider } from "./components/theme-provider";
+import { FavoritesProvider } from "./contexts/FavoritesContext";
 import HouseholdDashboard from "./pages/HouseholdDashboard";
 import BusinessDashboard from "./pages/BusinessDashboard";
 import BusinessProfileSetup from "./pages/BusinessProfileSetup";
@@ -25,37 +27,41 @@ const queryClient = new QueryClient();
 const App = () => (
   <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/discover" element={<Discover />} />
-            <Route path="/listing/:id" element={<ListingDetail />} />
-            <Route
-              path="/dashboard-household"
-              element={<HouseholdDashboard />}
-            />
-            <Route
-              path="/dashboard-business"
-              element={<BusinessDashboard />}
-            />
-            <Route path="/business-profile" element={<BusinessProfileSetup />} />
-            <Route path="/create-listing" element={<CreateListing />} />
-            <Route path="/my-listings" element={<MyListings />} />
-            <Route path="/checkout/:id" element={<Checkout />} />
-            <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/payment" element={<Payment />} />
-            <Route path="/order-success" element={<OrderSuccess />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+      <FavoritesProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/discover" element={<Discover />} />
+              <Route path="/favorites" element={<Favorites />} />
+              <Route path="/listing/:id" element={<ListingDetail />} />
+              <Route
+                path="/dashboard-household"
+                element={<HouseholdDashboard />}
+              />
+              <Route
+                path="/dashboard-business"
+                element={<BusinessDashboard />}
+              />
+              <Route path="/business-profile" element={<BusinessProfileSetup />} />
+              <Route path="/create-listing" element={<CreateListing />} />
+              <Route path="/my-listings" element={<MyListings />} />
+              <Route path="/checkout/:id" element={<Checkout />} />
+              <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/payment" element={<Payment />} />
+              <Route path="/order-success" element={<OrderSuccess />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </FavoritesProvider>
     </QueryClientProvider>
   </ThemeProvider>
 );
 
 export default App;
+

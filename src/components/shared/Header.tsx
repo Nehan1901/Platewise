@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { UtensilsCrossed, Moon, Sun, Search, MapPin, ChevronDown } from "lucide-react";
+import { UtensilsCrossed, Moon, Sun, Search, MapPin, ChevronDown, Heart } from "lucide-react";
 import { AuthModal } from "../auth/AuthModal";
 import { useTheme } from "@/components/theme-provider";
 
@@ -46,6 +46,14 @@ const Header = ({ locationName, showLocation = false }: HeaderProps) => {
             className="rounded-full h-9 w-9"
           >
             <Search className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/favorites")}
+            className="rounded-full h-9 w-9"
+          >
+            <Heart className="h-5 w-5" />
           </Button>
           <Button
             variant="ghost"
