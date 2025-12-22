@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, CreditCard, Clock, MapPin, Check, Shield, ChevronRight } from "lucide-react";
+import { ArrowLeft, Clock, MapPin, Shield, Pencil, Minus, Plus, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ApplePayIcon, PaymentCardIcon, PayPalIcon, CashAppIcon } from "@/components/icons/PaymentIcons";
 
 type PaymentMethod = "apple_pay" | "card" | "paypal" | "cash_app";
@@ -27,12 +28,15 @@ const Checkout = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("card");
+  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("apple_pay");
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  
+  // Card details state
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
   const [name, setName] = useState("");
-  const [paypalEmail, setPaypalEmail] = useState("");
 
   const listing = mockListings[id as keyof typeof mockListings];
 
@@ -44,9 +48,9 @@ const Checkout = () => {
     );
   }
 
-  const serviceFee = 0.50;
-  const total = listing.discounted_price + serviceFee;
-  const savings = listing.original_price - listing.discounted_price;
+  const subtotal = listing.discounted_price * quantity;
+  const salesTax = subtotal * 0.075;
+  const total = subtotal + salesTax;
 
   const formatCardNumber = (value: string) => {
     const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
@@ -67,153 +71,154 @@ const Checkout = () => {
     return v;
   };
 
-  const validatePayment = () => {
-    if (selectedPayment === "card") {
-      if (!cardNumber || !expiry || !cvv || !name) {
-        toast({
-          title: "Missing Information",
-          description: "Please fill in all card details.",
-          variant: "destructive",
-        });
-        return false;
-      }
-    } else if (selectedPayment === "paypal") {
-      if (!paypalEmail) {
-        toast({
-          title: "Missing Information",
-          description: "Please enter your PayPal email.",
-          variant: "destructive",
-        });
-        return false;
-      }
+  const validateCardPayment = () => {
+    if (!cardNumber || !expiry || !cvv || !name) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all card details.",
+        variant: "destructive",
+      });
+      return false;
     }
     return true;
   };
 
   const handlePayment = async () => {
-    if (!validatePayment()) return;
+    if (selectedPayment === "card" && !validateCardPayment()) return;
+    
+    if (selectedPayment === "paypal") {
+      // Redirect to PayPal login
+      window.open("https://www.paypal.com/signin", "_blank");
+      return;
+    }
+
+    if (selectedPayment === "cash_app") {
+      // Open Cash App
+      window.open("https://cash.app", "_blank");
+      return;
+    }
 
     setIsProcessing(true);
-    
-    // Simulate payment processing
     await new Promise((resolve) => setTimeout(resolve, 2000));
-    
     setIsProcessing(false);
     
     toast({
-      title: "Order Confirmed! 🎉",
-      description: `Your ${listing.title} has been reserved. Show this confirmation at pickup.`,
+      title: "Order Confirmed!",
+      description: `Your ${listing.title} has been reserved.`,
     });
     
     navigate(`/order-confirmation/${listing.id}`);
   };
 
+  const handleSelectPayment = (method: PaymentMethod) => {
+    setSelectedPayment(method);
+    setShowPaymentModal(false);
+  };
+
   const paymentMethods = [
-    {
-      id: "card" as PaymentMethod,
-      name: "Payment card",
-      icon: <PaymentCardIcon />,
-    },
-    {
-      id: "apple_pay" as PaymentMethod,
-      name: "Apple Pay",
-      icon: <ApplePayIcon />,
-    },
-    {
-      id: "paypal" as PaymentMethod,
-      name: "PayPal",
-      icon: <PayPalIcon />,
-    },
-    {
-      id: "cash_app" as PaymentMethod,
-      name: "Cash App Pay",
-      icon: <CashAppIcon />,
-    },
+    { id: "apple_pay" as PaymentMethod, name: "Apple Pay", icon: <ApplePayIcon /> },
+    { id: "card" as PaymentMethod, name: "Credit or Debit Card", icon: <PaymentCardIcon /> },
+    { id: "paypal" as PaymentMethod, name: "PayPal", icon: <PayPalIcon /> },
+    { id: "cash_app" as PaymentMethod, name: "Cash App Pay", icon: <CashAppIcon /> },
   ];
+
+  const selectedMethodInfo = paymentMethods.find((m) => m.id === selectedPayment);
+
+  const renderPaymentButton = () => {
+    if (isProcessing) {
+      return (
+        <div className="flex items-center gap-2">
+          <div className="h-5 w-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+          Processing...
+        </div>
+      );
+    }
+
+    switch (selectedPayment) {
+      case "apple_pay":
+        return <ApplePayIcon />;
+      case "paypal":
+        return (
+          <span className="flex items-center gap-2">
+            <PayPalIcon /> Continue with PayPal
+          </span>
+        );
+      case "cash_app":
+        return (
+          <span className="flex items-center gap-2">
+            <CashAppIcon /> Open Cash App
+          </span>
+        );
+      case "card":
+        return `Pay $${total.toFixed(2)}`;
+      default:
+        return `Pay $${total.toFixed(2)}`;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background pb-32">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b">
+      <header className="sticky top-0 z-50 bg-background border-b">
         <div className="flex items-center gap-4 p-4">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-lg font-semibold">Checkout</h1>
         </div>
       </header>
 
       <div className="p-4 space-y-6">
-        {/* Order Summary */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex gap-4">
-              <img
-                src={listing.image}
-                alt={listing.title}
-                className="w-20 h-20 rounded-lg object-cover"
-              />
-              <div className="flex-1">
-                <h3 className="font-semibold">{listing.title}</h3>
-                <p className="text-sm text-muted-foreground">{listing.business_name}</p>
-                <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
-                  <Clock className="h-4 w-4" />
-                  <span>{listing.pickup_time}</span>
-                </div>
-              </div>
+        {/* Business Info */}
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 mx-auto rounded-full overflow-hidden bg-muted">
+            <img
+              src={listing.image}
+              alt={listing.business_name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold">{listing.business_name} ({listing.title})</h1>
+            <div className="flex items-center justify-center gap-2 mt-2">
+              <span className="px-3 py-1 bg-muted rounded-full text-sm font-medium">
+                Pick up today
+              </span>
+              <span className="text-muted-foreground">{listing.pickup_time}</span>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Pickup Location */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <MapPin className="h-5 w-5 text-primary mt-0.5" />
-              <div>
-                <p className="font-medium">Pickup Location</p>
-                <p className="text-sm text-muted-foreground">{listing.address}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Payment Methods Selection */}
-        <div className="space-y-4">
-          <h2 className="font-semibold text-lg">Payment Method</h2>
-          
-          <div className="space-y-3">
-            {paymentMethods.map((method) => (
-              <Card
-                key={method.id}
-                className={`cursor-pointer transition-all ${
-                  selectedPayment === method.id
-                    ? "ring-2 ring-primary border-primary"
-                    : "hover:border-muted-foreground/50"
-                }`}
-                onClick={() => setSelectedPayment(method.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-4">
-                    {method.icon}
-                    <div className="flex-1">
-                      <p className="font-medium">{method.name}</p>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
           </div>
         </div>
 
-        {/* Payment Details - Card */}
+        <Separator />
+
+        {/* Payment Method Section */}
+        <div className="space-y-3">
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+            Payment Method
+          </h2>
+          
+          <Card 
+            className="cursor-pointer hover:bg-muted/50 transition-colors"
+            onClick={() => setShowPaymentModal(true)}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {selectedMethodInfo?.icon}
+                  <span className="font-medium">{selectedMethodInfo?.name}</span>
+                </div>
+                <Pencil className="h-5 w-5 text-primary" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Card Details - Only show when card is selected */}
         {selectedPayment === "card" && (
-          <div className="space-y-4">
-            <h2 className="font-semibold text-lg flex items-center gap-2">
+          <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
+            <h3 className="font-semibold flex items-center gap-2">
               <CreditCard className="h-5 w-5 text-primary" />
               Card Details
-            </h2>
+            </h3>
 
             <div className="space-y-4">
               <div className="space-y-2">
@@ -264,106 +269,122 @@ const Checkout = () => {
           </div>
         )}
 
-        {/* Payment Details - PayPal */}
+        {/* PayPal Info */}
         {selectedPayment === "paypal" && (
-          <div className="space-y-4">
-            <h2 className="font-semibold text-lg flex items-center gap-2">
+          <div className="p-6 bg-muted/30 rounded-lg text-center space-y-4">
+            <div className="flex justify-center">
               <PayPalIcon />
-              PayPal Details
-            </h2>
-
-            <div className="space-y-2">
-              <Label htmlFor="paypal-email">PayPal Email</Label>
-              <Input
-                id="paypal-email"
-                type="email"
-                placeholder="your@email.com"
-                value={paypalEmail}
-                onChange={(e) => setPaypalEmail(e.target.value)}
-              />
             </div>
-          </div>
-        )}
-
-        {/* Apple Pay - No additional details needed */}
-        {selectedPayment === "apple_pay" && (
-          <div className="p-4 bg-muted rounded-lg text-center">
-            <div className="flex justify-center mb-2">
-              <ApplePayIcon />
-            </div>
-            <p className="text-sm text-muted-foreground">
-              You'll be redirected to Apple Pay to complete your purchase
+            <p className="text-muted-foreground">
+              You'll be redirected to PayPal to login and complete your payment.
             </p>
           </div>
         )}
 
-        {/* Cash App Pay - No additional details needed */}
+        {/* Cash App Info */}
         {selectedPayment === "cash_app" && (
-          <div className="p-4 bg-muted rounded-lg text-center">
-            <div className="flex justify-center mb-2">
+          <div className="p-6 bg-muted/30 rounded-lg text-center space-y-4">
+            <div className="flex justify-center">
               <CashAppIcon />
             </div>
-            <p className="text-sm text-muted-foreground">
-              You'll be redirected to Cash App to complete your purchase
+            <p className="text-muted-foreground">
+              Cash App will open to complete your payment.
             </p>
           </div>
         )}
 
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Shield className="h-4 w-4" />
-          <span>Your payment is secure and encrypted</span>
-        </div>
-
-        <Separator />
-
-        {/* Price Breakdown */}
-        <div className="space-y-3">
-          <h2 className="font-semibold text-lg">Order Summary</h2>
-          <div className="space-y-2">
+        {/* Price Summary */}
+        <Card>
+          <CardContent className="p-4 space-y-3">
             <div className="flex justify-between text-sm">
-              <span>{listing.title}</span>
-              <span>${listing.discounted_price.toFixed(2)}</span>
+              <span className="text-muted-foreground">Subtotal</span>
+              <span>${subtotal.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <span>Service fee</span>
-              <span>${serviceFee.toFixed(2)}</span>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Sales taxes</span>
+              <span>${salesTax.toFixed(2)}</span>
             </div>
             <Separator />
             <div className="flex justify-between font-semibold">
               <span>Total</span>
               <span>${total.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-sm text-green-500">
-              <span>You're saving</span>
-              <span>${savings.toFixed(2)}</span>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+
+        {/* Terms */}
+        <p className="text-center text-sm text-muted-foreground">
+          By reserving this meal you agree to PlateWise's{" "}
+          <a href="#" className="text-primary underline">Terms and Conditions</a>.
+        </p>
       </div>
 
       {/* Bottom Action */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-sm border-t">
-        <Button 
-          className="w-full h-12 text-lg"
-          onClick={handlePayment}
-          disabled={isProcessing}
-        >
-          {isProcessing ? (
-            <div className="flex items-center gap-2">
-              <div className="h-5 w-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-              Processing...
-            </div>
-          ) : (
-            <>
-              {selectedPayment === "apple_pay" && <span className="mr-2"><ApplePayIcon /></span>}
-              {selectedPayment === "card" && <CreditCard className="h-5 w-5 mr-2" />}
-              {selectedPayment === "paypal" && <span className="mr-2"><PayPalIcon /></span>}
-              {selectedPayment === "cash_app" && <span className="mr-2"><CashAppIcon /></span>}
-              Pay ${total.toFixed(2)}
-            </>
-          )}
-        </Button>
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t">
+        <div className="flex items-center gap-4">
+          {/* Quantity Selector */}
+          <div className="flex items-center bg-muted rounded-full">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full h-12 w-12"
+              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              disabled={quantity <= 1}
+            >
+              <Minus className="h-4 w-4" />
+            </Button>
+            <span className="w-8 text-center font-medium">{quantity}</span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full h-12 w-12"
+              onClick={() => setQuantity(quantity + 1)}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Pay Button */}
+          <Button 
+            className={`flex-1 h-12 text-lg rounded-full ${
+              selectedPayment === "apple_pay" ? "bg-foreground text-background hover:bg-foreground/90" : ""
+            }`}
+            onClick={handlePayment}
+            disabled={isProcessing}
+          >
+            {renderPaymentButton()}
+          </Button>
+        </div>
       </div>
+
+      {/* Payment Method Selection Modal */}
+      <Dialog open={showPaymentModal} onOpenChange={setShowPaymentModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Select Payment Method</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            {paymentMethods.map((method) => (
+              <Card
+                key={method.id}
+                className={`cursor-pointer transition-all ${
+                  selectedPayment === method.id
+                    ? "ring-2 ring-primary border-primary"
+                    : "hover:bg-muted/50"
+                }`}
+                onClick={() => handleSelectPayment(method.id)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    {method.icon}
+                    <span className="font-medium">{method.name}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
