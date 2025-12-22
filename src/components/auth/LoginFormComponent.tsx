@@ -62,6 +62,7 @@ export const LoginFormComponent = ({ onSuccess }: LoginFormComponentProps) => {
       description: "Welcome back to PlateWise!",
     });
     onSuccess();
+    // Navigation to home is handled by AuthContext onAuthStateChange
   }
 
   return (

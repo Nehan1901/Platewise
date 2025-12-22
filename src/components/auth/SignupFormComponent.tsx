@@ -81,16 +81,11 @@ export const SignupFormComponent = ({ onSuccess }: SignupFormComponentProps) => 
       return;
     }
 
-    toast.success("Signed Up!", {
-      description: "Welcome to PlateWise!",
+    toast.success("Check your email!", {
+      description: "We've sent you a verification link. Please check your inbox and click the link to verify your account.",
+      duration: 10000,
     });
     onSuccess();
-
-    if (values.userType === "household") {
-      navigate("/dashboard-household");
-    } else {
-      navigate("/dashboard-business");
-    }
   }
 
   return (
