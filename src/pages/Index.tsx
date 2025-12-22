@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
 import Header from "@/components/shared/Header";
-import HeroSection from "@/components/home/HeroSection";
 import CategoryFilters from "@/components/home/CategoryFilters";
 import ListingSection from "@/components/home/ListingSection";
 import BottomNav from "@/components/shared/BottomNav";
@@ -207,17 +206,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
-      <Header />
+      <Header locationName={locationName} showLocation={true} />
       <main>
-        <HeroSection
-          locationName={locationName}
-          locationLoading={loading}
-          locationError={error}
-          onRequestLocation={requestLocation}
-          onLocationSelect={setManualLocation}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-        />
         
         {/* Category Filters */}
         <div className="py-3 bg-background sticky top-0 z-40 border-b border-border">
