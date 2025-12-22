@@ -1,11 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { UtensilsCrossed, Moon, Sun } from "lucide-react";
+import { UtensilsCrossed, Moon, Sun, Search } from "lucide-react";
 import { AuthModal } from "../auth/AuthModal";
 import { useTheme } from "@/components/theme-provider";
 
 const Header = () => {
   const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
@@ -19,6 +20,14 @@ const Header = () => {
           <span className="text-xl font-bold">PlateWise</span>
         </Link>
         <nav className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/discover")}
+            className="rounded-full"
+          >
+            <Search className="h-5 w-5" />
+          </Button>
           <Button
             variant="ghost"
             size="icon"
