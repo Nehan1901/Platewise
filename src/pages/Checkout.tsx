@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, CreditCard, Clock, MapPin, Check, Shield } from "lucide-react";
+import { ArrowLeft, CreditCard, Clock, MapPin, Check, Shield, Apple, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
+
+type PaymentMethod = "apple_pay" | "card" | "paypal";
 
 // Mock listing data for checkout
 const mockListings: Record<string, { id: string; title: string; business_name: string; discounted_price: number; original_price: number; pickup_time: string; address: string; image: string }> = {
@@ -24,10 +26,12 @@ const Checkout = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("card");
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvv, setCvv] = useState("");
   const [name, setName] = useState("");
+  const [paypalEmail, setPaypalEmail] = useState("");
 
   const listing = mockListings[id as keyof typeof mockListings];
 
@@ -62,15 +66,31 @@ const Checkout = () => {
     return v;
   };
 
-  const handlePayment = async () => {
-    if (!cardNumber || !expiry || !cvv || !name) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all payment details.",
-        variant: "destructive",
-      });
-      return;
+  const validatePayment = () => {
+    if (selectedPayment === "card") {
+      if (!cardNumber || !expiry || !cvv || !name) {
+        toast({
+          title: "Missing Information",
+          description: "Please fill in all card details.",
+          variant: "destructive",
+        });
+        return false;
+      }
+    } else if (selectedPayment === "paypal") {
+      if (!paypalEmail) {
+        toast({
+          title: "Missing Information",
+          description: "Please enter your PayPal email.",
+          variant: "destructive",
+        });
+        return false;
+      }
     }
+    return true;
+  };
+
+  const handlePayment = async () => {
+    if (!validatePayment()) return;
 
     setIsProcessing(true);
     
@@ -86,6 +106,27 @@ const Checkout = () => {
     
     navigate(`/order-confirmation/${listing.id}`);
   };
+
+  const paymentMethods = [
+    {
+      id: "apple_pay" as PaymentMethod,
+      name: "Apple Pay",
+      icon: <Apple className="h-5 w-5" />,
+      description: "Pay with Apple Pay",
+    },
+    {
+      id: "card" as PaymentMethod,
+      name: "Credit or Debit Card",
+      icon: <CreditCard className="h-5 w-5" />,
+      description: "Visa, Mastercard, Amex",
+    },
+    {
+      id: "paypal" as PaymentMethod,
+      name: "PayPal",
+      icon: <Wallet className="h-5 w-5" />,
+      description: "Pay with your PayPal account",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-background pb-32">
@@ -134,64 +175,145 @@ const Checkout = () => {
           </CardContent>
         </Card>
 
-        {/* Payment Details */}
+        {/* Payment Methods Selection */}
         <div className="space-y-4">
-          <h2 className="font-semibold text-lg flex items-center gap-2">
-            <CreditCard className="h-5 w-5 text-primary" />
-            Payment Details
-          </h2>
+          <h2 className="font-semibold text-lg">Payment Method</h2>
+          
+          <div className="space-y-3">
+            {paymentMethods.map((method) => (
+              <Card
+                key={method.id}
+                className={`cursor-pointer transition-all ${
+                  selectedPayment === method.id
+                    ? "ring-2 ring-primary border-primary"
+                    : "hover:border-muted-foreground/50"
+                }`}
+                onClick={() => setSelectedPayment(method.id)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        selectedPayment === method.id
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {method.icon}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium">{method.name}</p>
+                      <p className="text-sm text-muted-foreground">{method.description}</p>
+                    </div>
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        selectedPayment === method.id
+                          ? "border-primary bg-primary"
+                          : "border-muted-foreground/30"
+                      }`}
+                    >
+                      {selectedPayment === method.id && (
+                        <Check className="h-3 w-3 text-primary-foreground" />
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
 
+        {/* Payment Details - Card */}
+        {selectedPayment === "card" && (
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Cardholder Name</Label>
-              <Input
-                id="name"
-                placeholder="John Doe"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
+            <h2 className="font-semibold text-lg flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-primary" />
+              Card Details
+            </h2>
 
-            <div className="space-y-2">
-              <Label htmlFor="card">Card Number</Label>
-              <Input
-                id="card"
-                placeholder="1234 5678 9012 3456"
-                value={cardNumber}
-                onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-                maxLength={19}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="expiry">Expiry Date</Label>
+                <Label htmlFor="name">Cardholder Name</Label>
                 <Input
-                  id="expiry"
-                  placeholder="MM/YY"
-                  value={expiry}
-                  onChange={(e) => setExpiry(formatExpiry(e.target.value))}
-                  maxLength={5}
+                  id="name"
+                  placeholder="John Doe"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                 />
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="cvv">CVV</Label>
+                <Label htmlFor="card">Card Number</Label>
                 <Input
-                  id="cvv"
-                  placeholder="123"
-                  type="password"
-                  value={cvv}
-                  onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                  maxLength={4}
+                  id="card"
+                  placeholder="1234 5678 9012 3456"
+                  value={cardNumber}
+                  onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+                  maxLength={19}
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="expiry">Expiry Date</Label>
+                  <Input
+                    id="expiry"
+                    placeholder="MM/YY"
+                    value={expiry}
+                    onChange={(e) => setExpiry(formatExpiry(e.target.value))}
+                    maxLength={5}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cvv">CVV</Label>
+                  <Input
+                    id="cvv"
+                    placeholder="123"
+                    type="password"
+                    value={cvv}
+                    onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                    maxLength={4}
+                  />
+                </div>
               </div>
             </div>
           </div>
+        )}
 
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Shield className="h-4 w-4" />
-            <span>Your payment is secure and encrypted</span>
+        {/* Payment Details - PayPal */}
+        {selectedPayment === "paypal" && (
+          <div className="space-y-4">
+            <h2 className="font-semibold text-lg flex items-center gap-2">
+              <Wallet className="h-5 w-5 text-primary" />
+              PayPal Details
+            </h2>
+
+            <div className="space-y-2">
+              <Label htmlFor="paypal-email">PayPal Email</Label>
+              <Input
+                id="paypal-email"
+                type="email"
+                placeholder="your@email.com"
+                value={paypalEmail}
+                onChange={(e) => setPaypalEmail(e.target.value)}
+              />
+            </div>
           </div>
+        )}
+
+        {/* Apple Pay - No additional details needed */}
+        {selectedPayment === "apple_pay" && (
+          <div className="p-4 bg-muted rounded-lg text-center">
+            <Apple className="h-8 w-8 mx-auto mb-2" />
+            <p className="text-sm text-muted-foreground">
+              You'll be redirected to Apple Pay to complete your purchase
+            </p>
+          </div>
+        )}
+
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Shield className="h-4 w-4" />
+          <span>Your payment is secure and encrypted</span>
         </div>
 
         <Separator />
@@ -235,7 +357,9 @@ const Checkout = () => {
             </div>
           ) : (
             <>
-              <Check className="h-5 w-5 mr-2" />
+              {selectedPayment === "apple_pay" && <Apple className="h-5 w-5 mr-2" />}
+              {selectedPayment === "card" && <CreditCard className="h-5 w-5 mr-2" />}
+              {selectedPayment === "paypal" && <Wallet className="h-5 w-5 mr-2" />}
               Pay ${total.toFixed(2)}
             </>
           )}
