@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -16,9 +16,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { SocialLogins } from "./SocialLogins";
+import { supabase } from "@/integrations/supabase/client";
 
 const loginSchema = z.object({
-  email: z.string().email({ message: "Invalid email address." }),
+  email: z.string().trim().email({ message: "Invalid email address." }),
   password: z.string().min(8, { message: "Password must be at least 8 characters." }),
 });
 
@@ -28,15 +29,37 @@ interface LoginFormComponentProps {
 
 export const LoginFormComponent = ({ onSuccess }: LoginFormComponentProps) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
 
-  function onSubmit(values: z.infer<typeof loginSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof loginSchema>) {
+    setIsLoading(true);
+    
+    const { error } = await supabase.auth.signInWithPassword({
+      email: values.email,
+      password: values.password,
+    });
+
+    setIsLoading(false);
+
+    if (error) {
+      if (error.message.includes("Invalid login credentials")) {
+        toast.error("Invalid credentials", {
+          description: "Please check your email and password.",
+        });
+      } else {
+        toast.error("Login failed", {
+          description: error.message,
+        });
+      }
+      return;
+    }
+
     toast.success("Logged In!", {
-      description: "Welcome back to PlateWise! (This is a demo)",
+      description: "Welcome back to PlateWise!",
     });
     onSuccess();
   }
@@ -92,7 +115,8 @@ export const LoginFormComponent = ({ onSuccess }: LoginFormComponentProps) => {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Log In
         </Button>
       </form>

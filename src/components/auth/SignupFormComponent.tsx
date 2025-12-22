@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -17,11 +17,12 @@ import { Input } from "@/components/ui/input";
 import { SocialLogins } from "./SocialLogins";
 import { useNavigate } from "react-router-dom";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { supabase } from "@/integrations/supabase/client";
 
 const signupSchema = z.object({
-  firstName: z.string().min(2, { message: "First name is required." }),
-  lastName: z.string().min(2, { message: "Last name is required." }),
-  email: z.string().email({ message: "Invalid email address." }),
+  firstName: z.string().trim().min(2, { message: "First name is required." }),
+  lastName: z.string().trim().min(2, { message: "Last name is required." }),
+  email: z.string().trim().email({ message: "Invalid email address." }),
   password: z.string().min(8, { message: "Password must be at least 8 characters." }),
   userType: z.enum(["household", "business"], {
     required_error: "You need to select a user type.",
@@ -34,6 +35,7 @@ interface SignupFormComponentProps {
 
 export const SignupFormComponent = ({ onSuccess }: SignupFormComponentProps) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
@@ -46,10 +48,41 @@ export const SignupFormComponent = ({ onSuccess }: SignupFormComponentProps) => 
     },
   });
 
-  function onSubmit(values: z.infer<typeof signupSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof signupSchema>) {
+    setIsLoading(true);
+    
+    const redirectUrl = `${window.location.origin}/`;
+
+    const { error } = await supabase.auth.signUp({
+      email: values.email,
+      password: values.password,
+      options: {
+        emailRedirectTo: redirectUrl,
+        data: {
+          first_name: values.firstName,
+          last_name: values.lastName,
+          user_type: values.userType,
+        },
+      },
+    });
+
+    setIsLoading(false);
+
+    if (error) {
+      if (error.message.includes("User already registered")) {
+        toast.error("Account exists", {
+          description: "This email is already registered. Please log in instead.",
+        });
+      } else {
+        toast.error("Signup failed", {
+          description: error.message,
+        });
+      }
+      return;
+    }
+
     toast.success("Signed Up!", {
-      description: "Welcome to PlateWise! (This is a demo)",
+      description: "Welcome to PlateWise!",
     });
     onSuccess();
 
@@ -169,7 +202,8 @@ export const SignupFormComponent = ({ onSuccess }: SignupFormComponentProps) => 
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Create Account
         </Button>
       </form>
