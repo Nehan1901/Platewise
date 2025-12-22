@@ -170,14 +170,15 @@ const ListingCardNew = ({ listing, badge }: ListingCardNewProps) => {
           </div>
         )}
         
-        {/* Rating Badge */}
-        <div className="absolute top-3 right-3 flex items-center gap-1 bg-card/95 backdrop-blur-sm px-2 py-1 rounded-lg shadow-sm">
-          <Star className="h-3.5 w-3.5 fill-rating text-rating" />
-          <span className="text-sm font-semibold text-foreground">{rating}</span>
-        </div>
+        {/* Free Badge */}
+        {listing.discounted_price === 0 && (
+          <div className="absolute top-3 left-3 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide shadow-lg">
+            Free
+          </div>
+        )}
         
-        {/* Ending Soon Badge */}
-        {badge && (
+        {/* Ending Soon Badge - only show if not free */}
+        {badge && listing.discounted_price > 0 && (
           <div className="absolute top-3 left-3 bg-accent/90 backdrop-blur-sm text-accent-foreground px-3 py-1 rounded-full text-xs font-semibold">
             {badge}
           </div>
@@ -235,12 +236,25 @@ const ListingCardNew = ({ listing, badge }: ListingCardNewProps) => {
         
         {/* Price */}
         <div className="flex items-baseline gap-2 pt-1 border-t border-dashed border-border mt-2">
-          <span className="text-sm text-muted-foreground line-through">
-            ${listing.original_price.toFixed(2)}
-          </span>
-          <span className="text-lg font-bold text-foreground">
-            ${listing.discounted_price.toFixed(2)}
-          </span>
+          {listing.discounted_price === 0 ? (
+            <>
+              <span className="text-sm text-muted-foreground line-through">
+                ${listing.original_price.toFixed(2)}
+              </span>
+              <span className="text-lg font-bold text-green-500">
+                FREE
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="text-sm text-muted-foreground line-through">
+                ${listing.original_price.toFixed(2)}
+              </span>
+              <span className="text-lg font-bold text-foreground">
+                ${listing.discounted_price.toFixed(2)}
+              </span>
+            </>
+          )}
         </div>
       </div>
     </article>
