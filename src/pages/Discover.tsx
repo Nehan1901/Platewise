@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import DiscoverListingCard from "@/components/discover/DiscoverListingCard";
 import BottomNav from "@/components/shared/BottomNav";
+import FilterSheet, { FilterState } from "@/components/discover/FilterSheet";
 import { useGeolocation, calculateDistance } from "@/hooks/useGeolocation";
 import { cn } from "@/lib/utils";
 
@@ -97,6 +98,13 @@ const Discover = () => {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("relevance");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterState>({
+    dietaryPreferences: [],
+    priceRange: [0, 50],
+    distance: 10,
+    pickupTime: "any",
+  });
   const { latitude, longitude } = useGeolocation();
 
   // Calculate distances
@@ -160,7 +168,12 @@ const Discover = () => {
               className="pl-10 h-12 rounded-xl border-border bg-background"
             />
           </div>
-          <Button variant="outline" size="icon" className="h-12 w-12 rounded-xl border-border">
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-12 w-12 rounded-xl border-border"
+            onClick={() => setFilterOpen(true)}
+          >
             <SlidersHorizontal className="h-5 w-5" />
           </Button>
           <Button variant="outline" size="icon" className="h-12 w-12 rounded-xl border-border">
@@ -242,6 +255,13 @@ const Discover = () => {
           </div>
         </div>
       )}
+
+      <FilterSheet
+        open={filterOpen}
+        onOpenChange={setFilterOpen}
+        filters={filters}
+        onApplyFilters={setFilters}
+      />
 
       <BottomNav />
     </div>
