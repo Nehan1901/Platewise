@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { Search, SlidersHorizontal, MapPin, ChevronDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Search, SlidersHorizontal, MapPin, ChevronDown, ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -95,6 +96,7 @@ const mockListings = [
 ];
 
 const Discover = () => {
+  const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("relevance");
@@ -158,6 +160,14 @@ const Discover = () => {
       <div className="sticky top-0 z-50 bg-background px-4 pt-4 pb-3 space-y-3">
         {/* Search Bar Row */}
         <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/")}
+            className="h-10 w-10 rounded-full shrink-0"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
