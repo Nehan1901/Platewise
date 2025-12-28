@@ -21,6 +21,7 @@ import OrderConfirmation from "./pages/OrderConfirmation";
 import Cart from "./pages/Cart";
 import Payment from "./pages/Payment";
 import OrderSuccess from "./pages/OrderSuccess";
+import OrderHistory from "./pages/OrderHistory";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => (
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/payment" element={<Payment />} />
                 <Route path="/order-success" element={<OrderSuccess />} />
+                <Route path="/orders" element={<OrderHistory />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
