@@ -24,6 +24,16 @@ import OrderSuccess from "./pages/OrderSuccess";
 import OrderHistory from "./pages/OrderHistory";
 import Wallet from "./pages/Wallet";
 import Profile from "./pages/Profile";
+import AccountDetails from "./pages/AccountDetails";
+import Vouchers from "./pages/Vouchers";
+import Notifications from "./pages/Notifications";
+import InviteFriends from "./pages/InviteFriends";
+import RecommendStore from "./pages/RecommendStore";
+import HelpWithOrder from "./pages/HelpWithOrder";
+import HowItWorks from "./pages/HowItWorks";
+import Careers from "./pages/Careers";
+import HiddenStores from "./pages/HiddenStores";
+import Legal from "./pages/Legal";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +70,16 @@ const App = () => (
                 <Route path="/orders" element={<OrderHistory />} />
                 <Route path="/wallet" element={<Wallet />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/account" element={<AccountDetails />} />
+                <Route path="/vouchers" element={<Vouchers />} />
+                <Route path="/notifications" element={<Notifications />} />
+                <Route path="/invite" element={<InviteFriends />} />
+                <Route path="/recommend" element={<RecommendStore />} />
+                <Route path="/help" element={<HelpWithOrder />} />
+                <Route path="/how-it-works" element={<HowItWorks />} />
+                <Route path="/careers" element={<Careers />} />
+                <Route path="/hidden-stores" element={<HiddenStores />} />
+                <Route path="/legal" element={<Legal />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
