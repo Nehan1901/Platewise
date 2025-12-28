@@ -9,6 +9,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ApplePayIcon, PaymentCardIcon, PayPalIcon, CashAppIcon } from "@/components/icons/PaymentIcons";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 type PaymentMethod = "apple_pay" | "card" | "paypal" | "cash_app";
 
@@ -27,6 +29,7 @@ const mockListings: Record<string, { id: string; title: string; business_name: s
 const Checkout = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("apple_pay");
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -87,27 +90,119 @@ const Checkout = () => {
     if (selectedPayment === "card" && !validateCardPayment()) return;
     
     if (selectedPayment === "paypal") {
-      // Redirect to PayPal login
       window.open("https://www.paypal.com/signin", "_blank");
       return;
     }
 
     if (selectedPayment === "cash_app") {
-      // Open Cash App
       window.open("https://cash.app", "_blank");
       return;
     }
 
+    if (!user) {
+      toast({
+        title: "Please sign in",
+        description: "You need to be logged in to place an order.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsProcessing(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsProcessing(false);
     
-    toast({
-      title: "Order Confirmed!",
-      description: `Your ${listing.title} has been reserved.`,
-    });
-    
-    navigate(`/order-confirmation/${listing.id}`);
+    try {
+      // Create order in database
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          listing_id: listing.id,
+          listing_title: listing.title,
+          business_name: listing.business_name,
+          original_price: listing.original_price * quantity,
+          discounted_price: listing.discounted_price * quantity,
+          quantity: quantity,
+          image_url: listing.image,
+          pickup_time: listing.pickup_time,
+          status: 'confirmed'
+        })
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Calculate points (10 points per dollar spent)
+      const pointsEarned = Math.floor(total * 10);
+
+      // Check if user has rewards record
+      const { data: existingRewards } = await supabase
+        .from('user_rewards')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (existingRewards) {
+        // Update existing rewards
+        const newTotal = existingRewards.total_points + pointsEarned;
+        const newLifetime = existingRewards.lifetime_points + pointsEarned;
+        
+        // Determine tier based on lifetime points
+        let newTier = 'bronze';
+        if (newLifetime >= 10000) newTier = 'platinum';
+        else if (newLifetime >= 5000) newTier = 'gold';
+        else if (newLifetime >= 2000) newTier = 'silver';
+
+        await supabase
+          .from('user_rewards')
+          .update({ 
+            total_points: newTotal, 
+            lifetime_points: newLifetime,
+            tier: newTier
+          })
+          .eq('user_id', user.id);
+      } else {
+        // Create new rewards record
+        await supabase
+          .from('user_rewards')
+          .insert({
+            user_id: user.id,
+            total_points: pointsEarned,
+            lifetime_points: pointsEarned,
+            tier: 'bronze'
+          });
+      }
+
+      // Create points transaction with expiry (1 year from now)
+      const expiryDate = new Date();
+      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+
+      await supabase
+        .from('points_transactions')
+        .insert({
+          user_id: user.id,
+          points: pointsEarned,
+          transaction_type: 'earned',
+          description: `Earned from order at ${listing.business_name}`,
+          order_id: order.id,
+          expires_at: expiryDate.toISOString()
+        });
+
+      toast({
+        title: "Order Confirmed!",
+        description: `Your ${listing.title} has been reserved. You earned ${pointsEarned} points!`,
+      });
+      
+      navigate(`/order-success/${order.id}`);
+    } catch (error) {
+      console.error('Order error:', error);
+      toast({
+        title: "Order Failed",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleSelectPayment = (method: PaymentMethod) => {
