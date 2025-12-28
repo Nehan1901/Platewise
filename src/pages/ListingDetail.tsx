@@ -355,6 +355,162 @@ const mockListingDetails = {
       packaging: 4.3,
     }
   },
+  "9": {
+    id: "9",
+    title: "Leftover Sandwich Platter",
+    description: "A generous assortment of freshly made sandwiches from our deli counter. Includes various meats, cheeses, and vegetarian options. Perfect for sharing!",
+    original_price: 18.0,
+    discounted_price: 0,
+    category: "meals",
+    images: [
+      "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?q=90&w=1200&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1553909489-cd47e0907980?q=90&w=1200&auto=format&fit=crop",
+    ],
+    business_name: "Deli Express",
+    business_description: "Your neighborhood deli serving fresh sandwiches and salads since 1998.",
+    address: "234 Deli Street, New York, NY 10009",
+    latitude: 40.7188,
+    longitude: -74.005,
+    phone: "(555) 234-5670",
+    pickup_time: "9:00 PM - 10:00 PM",
+    pickup_instructions: "Enter through the main door. Ask for the 'closing time pickup' at the counter.",
+    items_left: 2,
+    rating: 4.3,
+    total_reviews: 145,
+    bag_type: "Closing Time Giveaway",
+    ingredients: ["Bread", "Turkey", "Ham", "Cheese", "Lettuce", "Tomato", "Mayo", "Mustard"],
+    allergens: ["Gluten", "Dairy", "Soy"],
+    customer_images: [
+      "https://images.unsplash.com/photo-1509722747041-616f39b57569?q=90&w=600&auto=format&fit=crop",
+    ],
+    reviews: [
+      { id: 1, user: "Mike S.", rating: 5, comment: "Got 4 sandwiches for free! Amazing initiative.", date: "1 day ago", sentiment: "positive" },
+      { id: 2, user: "Karen L.", rating: 4, comment: "Fresh and delicious. Love that they don't waste food.", date: "3 days ago", sentiment: "positive" },
+    ],
+    rating_breakdown: {
+      taste: 4.4,
+      value: 5.0,
+      freshness: 4.2,
+      packaging: 4.1,
+    }
+  },
+  "10": {
+    id: "10",
+    title: "Day-Old Croissants",
+    description: "Buttery, flaky croissants baked fresh yesterday. Still delicious when toasted! Includes plain, chocolate, and almond varieties.",
+    original_price: 12.0,
+    discounted_price: 0,
+    category: "bread",
+    images: [
+      "https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=90&w=1200&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1530610476181-d83430b64dcd?q=90&w=1200&auto=format&fit=crop",
+    ],
+    business_name: "French Bakery",
+    business_description: "Authentic French pastries made with traditional recipes and premium butter.",
+    address: "567 Pastry Lane, New York, NY 10010",
+    latitude: 40.7078,
+    longitude: -74.011,
+    phone: "(555) 345-6780",
+    pickup_time: "8:00 PM - 9:00 PM",
+    pickup_instructions: "Come to the bakery counter and mention 'free pastry pickup'.",
+    items_left: 6,
+    rating: 4.6,
+    total_reviews: 267,
+    bag_type: "Free Pastries",
+    ingredients: ["Flour", "Butter", "Sugar", "Eggs", "Yeast", "Chocolate", "Almonds"],
+    allergens: ["Gluten", "Dairy", "Eggs", "Nuts"],
+    customer_images: [
+      "https://images.unsplash.com/photo-1549903072-7e6e0bedb7fb?q=90&w=600&auto=format&fit=crop",
+    ],
+    reviews: [
+      { id: 1, user: "French F.", rating: 5, comment: "Just toast them and they're perfect!", date: "2 days ago", sentiment: "positive" },
+      { id: 2, user: "Baker B.", rating: 5, comment: "Such a great way to reduce waste. Croissants were still amazing.", date: "4 days ago", sentiment: "positive" },
+    ],
+    rating_breakdown: {
+      taste: 4.5,
+      value: 5.0,
+      freshness: 4.3,
+      packaging: 4.4,
+    }
+  },
+  "11": {
+    id: "11",
+    title: "Mixed Salad Bowl",
+    description: "Fresh, healthy mixed salad with seasonal vegetables, quinoa, and our signature house dressing. A complete nutritious meal!",
+    original_price: 14.0,
+    discounted_price: 0,
+    category: "meals",
+    images: [
+      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=90&w=1200&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1540420773420-3366772f4999?q=90&w=1200&auto=format&fit=crop",
+    ],
+    business_name: "Healthy Bites Cafe",
+    business_description: "Plant-forward cafe committed to healthy eating and zero food waste.",
+    address: "890 Green Avenue, New York, NY 10011",
+    latitude: 40.7198,
+    longitude: -74.002,
+    phone: "(555) 456-7891",
+    pickup_time: "7:00 PM - 8:00 PM",
+    pickup_instructions: "Head to the pickup counter on the left. Show your confirmation.",
+    items_left: 3,
+    rating: 4.5,
+    total_reviews: 189,
+    bag_type: "Zero Waste Initiative",
+    ingredients: ["Mixed Greens", "Quinoa", "Cherry Tomatoes", "Cucumber", "Avocado", "Chickpeas", "House Dressing"],
+    allergens: ["Sesame"],
+    customer_images: [
+      "https://images.unsplash.com/photo-1546793665-c74683f339c1?q=90&w=600&auto=format&fit=crop",
+    ],
+    reviews: [
+      { id: 1, user: "Veggie V.", rating: 5, comment: "Fresh and filling! Love this zero waste program.", date: "1 day ago", sentiment: "positive" },
+      { id: 2, user: "Health H.", rating: 4, comment: "Great initiative. Salad was still crispy and fresh.", date: "5 days ago", sentiment: "positive" },
+    ],
+    rating_breakdown: {
+      taste: 4.6,
+      value: 5.0,
+      freshness: 4.7,
+      packaging: 4.2,
+    }
+  },
+  "12": {
+    id: "12",
+    title: "Closing Time Pizza",
+    description: "Whole pizza made with our signature tomato sauce, mozzarella, and various toppings. Available varieties depend on what's left at closing.",
+    original_price: 16.0,
+    discounted_price: 0,
+    category: "pizza",
+    images: [
+      "https://images.unsplash.com/photo-1604382355076-af4b0eb60143?q=90&w=1200&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=90&w=1200&auto=format&fit=crop",
+    ],
+    business_name: "Tony's Pizzeria",
+    business_description: "Family-owned pizzeria making authentic New York style pizza since 1975.",
+    address: "123 Pizza Street, New York, NY 10012",
+    latitude: 40.7058,
+    longitude: -74.008,
+    phone: "(555) 567-8902",
+    pickup_time: "10:00 PM - 11:00 PM",
+    pickup_instructions: "Come to the front counter. First come, first served on available pizzas.",
+    items_left: 4,
+    rating: 4.7,
+    total_reviews: 432,
+    bag_type: "Free Before Close",
+    ingredients: ["Pizza Dough", "Tomato Sauce", "Mozzarella", "Various Toppings", "Olive Oil", "Oregano"],
+    allergens: ["Gluten", "Dairy"],
+    customer_images: [
+      "https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?q=90&w=600&auto=format&fit=crop",
+    ],
+    reviews: [
+      { id: 1, user: "Pizza P.", rating: 5, comment: "Free pizza?! Tony's is the best. Still hot and delicious!", date: "1 day ago", sentiment: "positive" },
+      { id: 2, user: "Night N.", rating: 5, comment: "Perfect late-night snack. So generous!", date: "2 days ago", sentiment: "positive" },
+    ],
+    rating_breakdown: {
+      taste: 4.8,
+      value: 5.0,
+      freshness: 4.6,
+      packaging: 4.5,
+    }
+  },
 };
 
 const ListingDetail = () => {
@@ -442,9 +598,14 @@ const ListingDetail = () => {
           </>
         )}
         
-        {/* Discount Badge */}
-        <Badge className="absolute top-16 left-4 bg-primary text-primary-foreground shadow-lg">
-          {discount}% OFF
+        {/* Discount/Free Badge */}
+        <Badge className={cn(
+          "absolute top-16 left-4 shadow-lg",
+          listing.discounted_price === 0 
+            ? "bg-green-500 text-white" 
+            : "bg-primary text-primary-foreground"
+        )}>
+          {listing.discounted_price === 0 ? "FREE" : `${discount}% OFF`}
         </Badge>
       </div>
 
@@ -498,9 +659,13 @@ const ListingDetail = () => {
               <p className="text-sm text-muted-foreground line-through">
                 ${listing.original_price.toFixed(2)}
               </p>
-              <p className="text-2xl font-bold text-primary">
-                ${listing.discounted_price.toFixed(2)}
-              </p>
+              {listing.discounted_price === 0 ? (
+                <p className="text-2xl font-bold text-green-500">FREE</p>
+              ) : (
+                <p className="text-2xl font-bold text-primary">
+                  ${listing.discounted_price.toFixed(2)}
+                </p>
+              )}
             </div>
           </div>
           
@@ -699,10 +864,13 @@ const ListingDetail = () => {
             Directions
           </Button>
           <Button 
-            className="flex-1"
+            className={cn(
+              "flex-1",
+              listing.discounted_price === 0 && "bg-green-500 hover:bg-green-600"
+            )}
             onClick={() => navigate(`/checkout/${listing.id}`)}
           >
-            Reserve
+            {listing.discounted_price === 0 ? "Claim Free" : "Reserve"}
           </Button>
         </div>
       </div>
