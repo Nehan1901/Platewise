@@ -91,25 +91,6 @@ const Header = ({ locationName, showLocation = false }: HeaderProps) => {
 
         {/* Actions */}
         <nav className="flex items-center gap-1 sm:gap-2">
-          {/* Desktop nav links - hidden on mobile */}
-          <div className="hidden md:flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("/discover")}
-              className="rounded-full h-9 w-9"
-            >
-              <Search className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate("/favorites")}
-              className="rounded-full h-9 w-9"
-            >
-              <Heart className="h-5 w-5" />
-            </Button>
-          </div>
           
           <Button
             variant="ghost"
