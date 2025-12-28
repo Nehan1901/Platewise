@@ -57,9 +57,8 @@ const Header = ({ locationName, showLocation = false }: HeaderProps) => {
     }
   };
 
+  // Account-related items only for the user sidebar
   const navItems = [
-    { icon: Search, label: "Browse", path: "/" },
-    { icon: Compass, label: "Discover", path: "/discover" },
     { icon: Heart, label: "Favorites", path: "/favorites" },
     { icon: ClipboardList, label: "Orders", path: "/orders" },
   ];
@@ -91,6 +90,15 @@ const Header = ({ locationName, showLocation = false }: HeaderProps) => {
 
         {/* Actions */}
         <nav className="flex items-center gap-1 sm:gap-2">
+          {/* Search/Discover icon for quick access */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/discover")}
+            className="rounded-full h-9 w-9"
+          >
+            <Search className="h-5 w-5" />
+          </Button>
           
           <Button
             variant="ghost"
