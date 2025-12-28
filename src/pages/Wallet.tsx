@@ -10,7 +10,9 @@ import {
   Sparkles,
   TrendingUp,
   Check,
-  AlertTriangle
+  AlertTriangle,
+  Trash2,
+  Loader2
 } from "lucide-react";
 import Header from "@/components/shared/Header";
 import BottomNav from "@/components/shared/BottomNav";
@@ -19,10 +21,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { format, differenceInDays } from "date-fns";
+import { toast } from "@/hooks/use-toast";
+import { useSearchParams } from "react-router-dom";
 
 // Tier definitions
 const TIERS = [
@@ -31,48 +34,54 @@ const TIERS = [
     minPoints: 0, 
     color: "bg-amber-700", 
     textColor: "text-amber-700",
-    benefits: ["1 point per $1 spent", "Basic rewards access", "Birthday bonus"] 
+    benefits: ["10 points per $1 spent", "Basic rewards access", "Birthday bonus"] 
   },
   { 
     name: "Silver", 
-    minPoints: 500, 
+    minPoints: 2000, 
     color: "bg-slate-400", 
     textColor: "text-slate-400",
     benefits: ["1.25x points multiplier", "Early access to deals", "Priority support", "Free pickup upgrades"] 
   },
   { 
     name: "Gold", 
-    minPoints: 1500, 
+    minPoints: 5000, 
     color: "bg-yellow-500", 
     textColor: "text-yellow-500",
     benefits: ["1.5x points multiplier", "Exclusive member deals", "Free items monthly", "VIP support"] 
   },
   { 
     name: "Platinum", 
-    minPoints: 3000, 
+    minPoints: 10000, 
     color: "bg-purple-400", 
     textColor: "text-purple-400",
     benefits: ["2x points multiplier", "Unlimited exclusive deals", "Free premium items", "Dedicated concierge", "Partner perks"] 
   },
 ];
 
-// Pricing plans
+// Pricing plans with Stripe price IDs (to be created)
 const PLANS = [
   { 
+    id: "free",
     name: "Free", 
     price: 0, 
-    features: ["Earn 1 point per $1", "Access to all deals", "Order tracking", "Basic support"],
+    priceId: null,
+    features: ["Earn 10 points per $1", "Access to all deals", "Order tracking", "Basic support"],
     current: true
   },
   { 
+    id: "plus",
     name: "Plus", 
     price: 4.99, 
+    priceId: null, // Will need to be created in Stripe
     features: ["Everything in Free", "1.5x bonus points", "No service fees", "Priority pickup slots", "Exclusive deals"],
     recommended: true
   },
   { 
+    id: "premium",
     name: "Premium", 
     price: 9.99, 
+    priceId: null, // Will need to be created in Stripe
     features: ["Everything in Plus", "2x bonus points", "Free delivery on groceries", "Early access to new features", "Premium support"]
   },
 ];
@@ -92,31 +101,66 @@ interface PointsTransaction {
   created_at: string;
 }
 
+interface SavedCard {
+  id: string;
+  brand: string;
+  last4: string;
+  expMonth: number;
+  expYear: number;
+}
+
+interface SubscriptionInfo {
+  subscribed: boolean;
+  productId?: string;
+  planName?: string;
+  subscriptionEnd?: string;
+}
+
 const Wallet = () => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [rewards, setRewards] = useState<UserRewards | null>(null);
   const [transactions, setTransactions] = useState<PointsTransaction[]>([]);
   const [expiringPoints, setExpiringPoints] = useState<PointsTransaction[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const [savedCards] = useState([
-    { id: 1, last4: "4242", brand: "Visa", expiry: "12/25" },
-    { id: 2, last4: "5555", brand: "Mastercard", expiry: "08/26" },
-  ]);
+  const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
+  const [cardsLoading, setCardsLoading] = useState(false);
+  const [deletingCard, setDeletingCard] = useState<string | null>(null);
+  const [subscription, setSubscription] = useState<SubscriptionInfo>({ subscribed: false });
+  const [upgradingPlan, setUpgradingPlan] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
       fetchRewardsData();
+      fetchPaymentMethods();
+      checkSubscription();
     } else {
       setLoading(false);
     }
   }, [user]);
 
+  // Check for subscription success/cancel from URL params
+  useEffect(() => {
+    const subscriptionStatus = searchParams.get('subscription');
+    if (subscriptionStatus === 'success') {
+      toast({
+        title: "Subscription Activated!",
+        description: "Thank you for upgrading. Enjoy your new benefits!",
+      });
+      checkSubscription();
+    } else if (subscriptionStatus === 'cancelled') {
+      toast({
+        title: "Subscription Cancelled",
+        description: "Your subscription was not completed.",
+        variant: "destructive"
+      });
+    }
+  }, [searchParams]);
+
   const fetchRewardsData = async () => {
     if (!user) return;
 
     try {
-      // Fetch user rewards
       const { data: rewardsData } = await supabase
         .from("user_rewards")
         .select("*")
@@ -126,12 +170,10 @@ const Wallet = () => {
       if (rewardsData) {
         setRewards(rewardsData);
       } else {
-        // Create default rewards for new user
         const defaultRewards = { total_points: 0, lifetime_points: 0, tier: "bronze" };
         setRewards(defaultRewards);
       }
 
-      // Fetch transactions
       const { data: transactionsData } = await supabase
         .from("points_transactions")
         .select("*")
@@ -141,7 +183,6 @@ const Wallet = () => {
 
       setTransactions(transactionsData || []);
 
-      // Get expiring points (within 30 days)
       const thirtyDaysFromNow = new Date();
       thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
       
@@ -160,6 +201,101 @@ const Wallet = () => {
     }
   };
 
+  const fetchPaymentMethods = async () => {
+    if (!user) return;
+    setCardsLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('get-payment-methods');
+      
+      if (error) throw error;
+      
+      if (data?.paymentMethods) {
+        setSavedCards(data.paymentMethods);
+      }
+    } catch (error) {
+      console.error("Error fetching payment methods:", error);
+    } finally {
+      setCardsLoading(false);
+    }
+  };
+
+  const checkSubscription = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase.functions.invoke('check-subscription');
+      
+      if (error) throw error;
+      
+      if (data) {
+        setSubscription(data);
+      }
+    } catch (error) {
+      console.error("Error checking subscription:", error);
+    }
+  };
+
+  const handleDeleteCard = async (cardId: string) => {
+    setDeletingCard(cardId);
+    
+    try {
+      const { error } = await supabase.functions.invoke('delete-payment-method', {
+        body: { paymentMethodId: cardId }
+      });
+      
+      if (error) throw error;
+      
+      setSavedCards(prev => prev.filter(c => c.id !== cardId));
+      toast({
+        title: "Card Removed",
+        description: "Your payment method has been removed.",
+      });
+    } catch (error) {
+      console.error("Error deleting card:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove card. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setDeletingCard(null);
+    }
+  };
+
+  const handleUpgradePlan = async (priceId: string | null, planName: string) => {
+    if (!priceId) {
+      toast({
+        title: "Coming Soon",
+        description: `${planName} plan subscriptions will be available soon!`,
+      });
+      return;
+    }
+
+    setUpgradingPlan(planName);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('create-subscription-checkout', {
+        body: { priceId }
+      });
+      
+      if (error) throw error;
+      
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error("Error creating checkout:", error);
+      toast({
+        title: "Error",
+        description: "Failed to start checkout. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setUpgradingPlan(null);
+    }
+  };
+
   const getCurrentTier = () => {
     const points = rewards?.lifetime_points || 0;
     return TIERS.slice().reverse().find(t => points >= t.minPoints) || TIERS[0];
@@ -175,6 +311,10 @@ const Wallet = () => {
     const nextTier = getNextTier();
     if (!nextTier) return 0;
     return nextTier.minPoints - (rewards?.lifetime_points || 0);
+  };
+
+  const getBrandIcon = (brand: string) => {
+    return <CreditCard className="h-4 w-4 text-muted-foreground" />;
   };
 
   const currentTier = getCurrentTier();
@@ -238,6 +378,20 @@ const Wallet = () => {
                     }}
                   />
                 </div>
+              </div>
+            )}
+
+            {subscription.subscribed && (
+              <div className="mt-4 pt-4 border-t border-primary/20">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Active Plan</span>
+                  <Badge variant="secondary">{subscription.planName || 'Premium'}</Badge>
+                </div>
+                {subscription.subscriptionEnd && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Renews {format(new Date(subscription.subscriptionEnd), "MMM d, yyyy")}
+                  </p>
+                )}
               </div>
             )}
           </CardContent>
@@ -310,7 +464,7 @@ const Wallet = () => {
                       <p className="text-sm text-muted-foreground">Earn points on purchases</p>
                     </div>
                   </div>
-                  <Badge variant="secondary">1pt / $1</Badge>
+                  <Badge variant="secondary">10pt / $1</Badge>
                 </div>
                 <Separator />
                 <div className="flex items-center justify-between py-2">
@@ -348,50 +502,65 @@ const Wallet = () => {
                 <CardDescription>Get more benefits with a paid plan</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {PLANS.map((plan) => (
-                  <div 
-                    key={plan.name}
-                    className={`p-4 rounded-lg border-2 transition-colors ${
-                      plan.recommended 
-                        ? "border-primary bg-primary/5" 
-                        : plan.current 
-                          ? "border-muted bg-muted/30" 
-                          : "border-border"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold">{plan.name}</h3>
-                        {plan.recommended && (
-                          <Badge className="bg-primary text-primary-foreground">Recommended</Badge>
-                        )}
-                        {plan.current && (
-                          <Badge variant="outline">Current</Badge>
-                        )}
+                {PLANS.map((plan) => {
+                  const isCurrentPlan = subscription.subscribed 
+                    ? subscription.planName?.toLowerCase() === plan.name.toLowerCase()
+                    : plan.id === 'free';
+                  
+                  return (
+                    <div 
+                      key={plan.name}
+                      className={`p-4 rounded-lg border-2 transition-colors ${
+                        plan.recommended 
+                          ? "border-primary bg-primary/5" 
+                          : isCurrentPlan 
+                            ? "border-muted bg-muted/30" 
+                            : "border-border"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold">{plan.name}</h3>
+                          {plan.recommended && (
+                            <Badge className="bg-primary text-primary-foreground">Recommended</Badge>
+                          )}
+                          {isCurrentPlan && (
+                            <Badge variant="outline">Current</Badge>
+                          )}
+                        </div>
+                        <p className="font-bold">
+                          {plan.price === 0 ? "Free" : `$${plan.price}/mo`}
+                        </p>
                       </div>
-                      <p className="font-bold">
-                        {plan.price === 0 ? "Free" : `$${plan.price}/mo`}
-                      </p>
+                      <ul className="space-y-1">
+                        {plan.features.slice(0, 3).map((feature, i) => (
+                          <li key={i} className="text-sm text-muted-foreground flex items-center gap-2">
+                            <Check className="h-3 w-3 text-primary" />
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                      {!isCurrentPlan && plan.price > 0 && (
+                        <Button 
+                          size="sm" 
+                          variant={plan.recommended ? "default" : "outline"}
+                          className="mt-3 w-full"
+                          onClick={() => handleUpgradePlan(plan.priceId, plan.name)}
+                          disabled={upgradingPlan === plan.name}
+                        >
+                          {upgradingPlan === plan.name ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Loading...
+                            </>
+                          ) : (
+                            `Upgrade to ${plan.name}`
+                          )}
+                        </Button>
+                      )}
                     </div>
-                    <ul className="space-y-1">
-                      {plan.features.slice(0, 3).map((feature, i) => (
-                        <li key={i} className="text-sm text-muted-foreground flex items-center gap-2">
-                          <Check className="h-3 w-3 text-primary" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                    {!plan.current && (
-                      <Button 
-                        size="sm" 
-                        variant={plan.recommended ? "default" : "outline"}
-                        className="mt-3 w-full"
-                      >
-                        Upgrade to {plan.name}
-                      </Button>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </CardContent>
             </Card>
           </TabsContent>
@@ -456,7 +625,7 @@ const Wallet = () => {
                 <CardDescription>Unlock benefits as you earn more points</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {TIERS.map((tier, index) => {
+                {TIERS.map((tier) => {
                   const isCurrentTier = tier.name.toLowerCase() === currentTier.name.toLowerCase();
                   const isUnlocked = (rewards?.lifetime_points || 0) >= tier.minPoints;
                   
@@ -516,29 +685,40 @@ const Wallet = () => {
                     <CreditCard className="h-5 w-5" />
                     Payment Methods
                   </CardTitle>
-                  <Button variant="ghost" size="sm" className="gap-1">
-                    <Plus className="h-4 w-4" />
-                    Add Card
-                  </Button>
                 </div>
                 <CardDescription>Manage your saved payment methods</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                {savedCards.length > 0 ? (
+                {cardsLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : savedCards.length > 0 ? (
                   savedCards.map((card, index) => (
                     <div key={card.id}>
                       <div className="flex items-center justify-between py-3">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-7 rounded bg-muted flex items-center justify-center">
-                            <CreditCard className="h-4 w-4 text-muted-foreground" />
+                            {getBrandIcon(card.brand)}
                           </div>
                           <div>
-                            <p className="font-medium">{card.brand} •••• {card.last4}</p>
-                            <p className="text-sm text-muted-foreground">Expires {card.expiry}</p>
+                            <p className="font-medium capitalize">{card.brand} •••• {card.last4}</p>
+                            <p className="text-sm text-muted-foreground">
+                              Expires {card.expMonth}/{card.expYear}
+                            </p>
                           </div>
                         </div>
-                        <Button variant="ghost" size="sm">
-                          Edit
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleDeleteCard(card.id)}
+                          disabled={deletingCard === card.id}
+                        >
+                          {deletingCard === card.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          )}
                         </Button>
                       </div>
                       {index < savedCards.length - 1 && <Separator />}
@@ -548,9 +728,7 @@ const Wallet = () => {
                   <div className="text-center py-8 text-muted-foreground">
                     <CreditCard className="h-12 w-12 mx-auto mb-3 opacity-50" />
                     <p>No payment methods saved</p>
-                    <Button variant="outline" size="sm" className="mt-3">
-                      Add Your First Card
-                    </Button>
+                    <p className="text-sm mt-1">Cards will be saved when you complete a purchase</p>
                   </div>
                 )}
               </CardContent>
