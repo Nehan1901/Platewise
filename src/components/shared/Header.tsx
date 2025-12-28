@@ -10,10 +10,9 @@ import {
   ChevronDown, 
   Heart,
   User,
-  Compass,
   ClipboardList,
   LogOut,
-  X
+  Wallet
 } from "lucide-react";
 import { AuthModal } from "../auth/AuthModal";
 import { useTheme } from "@/components/theme-provider";
@@ -61,6 +60,7 @@ const Header = ({ locationName, showLocation = false }: HeaderProps) => {
   const navItems = [
     { icon: Heart, label: "Favorites", path: "/favorites" },
     { icon: ClipboardList, label: "Orders", path: "/orders" },
+    { icon: Wallet, label: "Wallet", path: "/wallet" },
   ];
 
   const navigateTo = (path: string) => {
