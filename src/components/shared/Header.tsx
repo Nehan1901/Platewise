@@ -23,6 +23,7 @@ interface HeaderProps {
 const Header = ({ locationName, showLocation = false }: HeaderProps) => {
   const { theme, setTheme } = useTheme();
   const { user } = useAuth();
+  const { totalItems } = useCart();
   const navigate = useNavigate();
 
   const toggleTheme = () => {
