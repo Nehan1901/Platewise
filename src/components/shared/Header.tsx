@@ -7,11 +7,13 @@ import {
   Search, 
   MapPin, 
   ChevronDown, 
-  User
+  User,
+  ShoppingCart
 } from "lucide-react";
 import { AuthModal } from "../auth/AuthModal";
 import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 
 interface HeaderProps {
   locationName?: string | null;
