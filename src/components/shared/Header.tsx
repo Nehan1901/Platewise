@@ -7,11 +7,13 @@ import {
   Search, 
   MapPin, 
   ChevronDown, 
-  User
+  User,
+  ShoppingCart
 } from "lucide-react";
 import { AuthModal } from "../auth/AuthModal";
 import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 
 interface HeaderProps {
   locationName?: string | null;
@@ -21,6 +23,7 @@ interface HeaderProps {
 const Header = ({ locationName, showLocation = false }: HeaderProps) => {
   const { theme, setTheme } = useTheme();
   const { user } = useAuth();
+  const { totalItems } = useCart();
   const navigate = useNavigate();
 
   const toggleTheme = () => {
@@ -58,6 +61,22 @@ const Header = ({ locationName, showLocation = false }: HeaderProps) => {
           >
             <Search className="h-5 w-5" />
           </Button>
+
+          {/* Cart */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/cart")}
+            className="rounded-full h-9 w-9 relative"
+          >
+            <ShoppingCart className="h-5 w-5" />
+            {totalItems > 0 && (
+              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                {totalItems}
+              </span>
+            )}
+          </Button>
+          
           
           <Button
             variant="ghost"

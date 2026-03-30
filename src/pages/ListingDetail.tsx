@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { 
   ArrowLeft, 
@@ -15,13 +15,20 @@ import {
   Users,
   ThumbsUp,
   ThumbsDown,
-  Meh
+  Meh,
+  ShoppingCart,
+  Send
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import ListingMap from "@/components/listing/ListingMap";
+import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 // Mock listing data (in production, this would come from an API)
 const mockListingDetails = {
@@ -516,10 +523,61 @@ const mockListingDetails = {
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { addItem } = useCart();
+  const { user } = useAuth();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [dbReviews, setDbReviews] = useState<any[]>([]);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
 
   const listing = mockListingDetails[id as keyof typeof mockListingDetails];
+
+  useEffect(() => {
+    if (!id) return;
+    supabase
+      .from("reviews")
+      .select("*")
+      .eq("listing_id", id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setDbReviews(data || []));
+  }, [id]);
+
+  const handleAddToCart = () => {
+    if (!listing) return;
+    addItem({
+      listing_id: listing.id,
+      title: listing.title,
+      business_name: listing.business_name,
+      price: listing.discounted_price,
+      original_price: listing.original_price,
+      image: listing.images[0],
+      pickup_time: listing.pickup_time,
+    });
+    toast({ title: "Added to cart", description: `${listing.title} has been added to your cart.` });
+  };
+
+  const handleSubmitReview = async () => {
+    if (!user || !id) return;
+    setSubmittingReview(true);
+    const { error } = await supabase.from("reviews").insert({
+      user_id: user.id,
+      listing_id: id,
+      rating: reviewRating,
+      comment: reviewComment || null,
+    });
+    setSubmittingReview(false);
+    if (error) {
+      toast({ title: "Error", description: "Failed to submit review", variant: "destructive" });
+    } else {
+      toast({ title: "Review submitted!", description: "Thanks for your feedback." });
+      setReviewComment("");
+      // Refresh reviews
+      const { data } = await supabase.from("reviews").select("*").eq("listing_id", id).order("created_at", { ascending: false });
+      setDbReviews(data || []);
+    }
+  };
 
   if (!listing) {
     return (
@@ -798,6 +856,29 @@ const ListingDetail = () => {
         {/* Reviews */}
         <div className="space-y-4">
           <h2 className="font-semibold text-lg">Reviews</h2>
+          
+          {/* DB Reviews */}
+          {dbReviews.length > 0 && (
+            <div className="space-y-3 mb-4">
+              {dbReviews.map((review) => (
+                <div key={review.id} className="p-4 bg-secondary rounded-xl space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(review.created_at).toLocaleDateString()}
+                    </p>
+                    <div className="flex items-center gap-0.5">
+                      {Array.from({ length: review.rating }).map((_, i) => (
+                        <Star key={i} className="h-3.5 w-3.5 fill-rating text-rating" />
+                      ))}
+                    </div>
+                  </div>
+                  {review.comment && <p className="text-sm text-muted-foreground">{review.comment}</p>}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Mock Reviews */}
           <div className="space-y-4">
             {listing.reviews.map((review) => (
               <div key={review.id} className="p-4 bg-secondary rounded-xl space-y-2">
@@ -825,6 +906,30 @@ const ListingDetail = () => {
               </div>
             ))}
           </div>
+
+          {/* Review Submission */}
+          {user && (
+            <div className="mt-4 p-4 bg-secondary rounded-xl space-y-3">
+              <h3 className="font-medium text-sm">Leave a Review</h3>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button key={star} onClick={() => setReviewRating(star)}>
+                    <Star className={cn("h-6 w-6", star <= reviewRating ? "fill-rating text-rating" : "text-muted-foreground")} />
+                  </button>
+                ))}
+              </div>
+              <Textarea
+                placeholder="Share your experience..."
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+                className="min-h-[80px]"
+              />
+              <Button size="sm" onClick={handleSubmitReview} disabled={submittingReview}>
+                <Send className="h-4 w-4 mr-2" />
+                {submittingReview ? "Submitting..." : "Submit Review"}
+              </Button>
+            </div>
+          )}
         </div>
 
         <Separator />
@@ -849,19 +954,25 @@ const ListingDetail = () => {
         <div className="flex gap-3">
           <Button
             variant="outline"
-            className="flex-1"
+            size="icon"
             onClick={() => setIsFavorite(!isFavorite)}
           >
-            <Heart className={cn("h-5 w-5 mr-2", isFavorite && "fill-primary text-primary")} />
-            {isFavorite ? "Saved" : "Save"}
+            <Heart className={cn("h-5 w-5", isFavorite && "fill-primary text-primary")} />
           </Button>
           <Button
             variant="secondary"
-            className="flex-1"
+            size="icon"
             onClick={handleGetDirections}
           >
-            <Navigation className="h-5 w-5 mr-2" />
-            Directions
+            <Navigation className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={handleAddToCart}
+          >
+            <ShoppingCart className="h-5 w-5 mr-2" />
+            Add to Cart
           </Button>
           <Button 
             className={cn(
