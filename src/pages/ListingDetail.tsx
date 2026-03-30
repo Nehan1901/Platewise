@@ -856,6 +856,29 @@ const ListingDetail = () => {
         {/* Reviews */}
         <div className="space-y-4">
           <h2 className="font-semibold text-lg">Reviews</h2>
+          
+          {/* DB Reviews */}
+          {dbReviews.length > 0 && (
+            <div className="space-y-3 mb-4">
+              {dbReviews.map((review) => (
+                <div key={review.id} className="p-4 bg-secondary rounded-xl space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(review.created_at).toLocaleDateString()}
+                    </p>
+                    <div className="flex items-center gap-0.5">
+                      {Array.from({ length: review.rating }).map((_, i) => (
+                        <Star key={i} className="h-3.5 w-3.5 fill-rating text-rating" />
+                      ))}
+                    </div>
+                  </div>
+                  {review.comment && <p className="text-sm text-muted-foreground">{review.comment}</p>}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Mock Reviews */}
           <div className="space-y-4">
             {listing.reviews.map((review) => (
               <div key={review.id} className="p-4 bg-secondary rounded-xl space-y-2">
@@ -883,6 +906,30 @@ const ListingDetail = () => {
               </div>
             ))}
           </div>
+
+          {/* Review Submission */}
+          {user && (
+            <div className="mt-4 p-4 bg-secondary rounded-xl space-y-3">
+              <h3 className="font-medium text-sm">Leave a Review</h3>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button key={star} onClick={() => setReviewRating(star)}>
+                    <Star className={cn("h-6 w-6", star <= reviewRating ? "fill-rating text-rating" : "text-muted-foreground")} />
+                  </button>
+                ))}
+              </div>
+              <Textarea
+                placeholder="Share your experience..."
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+                className="min-h-[80px]"
+              />
+              <Button size="sm" onClick={handleSubmitReview} disabled={submittingReview}>
+                <Send className="h-4 w-4 mr-2" />
+                {submittingReview ? "Submitting..." : "Submit Review"}
+              </Button>
+            </div>
+          )}
         </div>
 
         <Separator />
