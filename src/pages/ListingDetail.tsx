@@ -534,6 +534,51 @@ const ListingDetail = () => {
 
   const listing = mockListingDetails[id as keyof typeof mockListingDetails];
 
+  useEffect(() => {
+    if (!id) return;
+    supabase
+      .from("reviews")
+      .select("*")
+      .eq("listing_id", id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setDbReviews(data || []));
+  }, [id]);
+
+  const handleAddToCart = () => {
+    if (!listing) return;
+    addItem({
+      listing_id: listing.id,
+      title: listing.title,
+      business_name: listing.business_name,
+      price: listing.discounted_price,
+      original_price: listing.original_price,
+      image: listing.images[0],
+      pickup_time: listing.pickup_time,
+    });
+    toast({ title: "Added to cart", description: `${listing.title} has been added to your cart.` });
+  };
+
+  const handleSubmitReview = async () => {
+    if (!user || !id) return;
+    setSubmittingReview(true);
+    const { error } = await supabase.from("reviews").insert({
+      user_id: user.id,
+      listing_id: id,
+      rating: reviewRating,
+      comment: reviewComment || null,
+    });
+    setSubmittingReview(false);
+    if (error) {
+      toast({ title: "Error", description: "Failed to submit review", variant: "destructive" });
+    } else {
+      toast({ title: "Review submitted!", description: "Thanks for your feedback." });
+      setReviewComment("");
+      // Refresh reviews
+      const { data } = await supabase.from("reviews").select("*").eq("listing_id", id).order("created_at", { ascending: false });
+      setDbReviews(data || []);
+    }
+  };
+
   if (!listing) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
