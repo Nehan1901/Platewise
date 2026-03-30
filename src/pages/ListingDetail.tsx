@@ -954,19 +954,25 @@ const ListingDetail = () => {
         <div className="flex gap-3">
           <Button
             variant="outline"
-            className="flex-1"
+            size="icon"
             onClick={() => setIsFavorite(!isFavorite)}
           >
-            <Heart className={cn("h-5 w-5 mr-2", isFavorite && "fill-primary text-primary")} />
-            {isFavorite ? "Saved" : "Save"}
+            <Heart className={cn("h-5 w-5", isFavorite && "fill-primary text-primary")} />
           </Button>
           <Button
             variant="secondary"
-            className="flex-1"
+            size="icon"
             onClick={handleGetDirections}
           >
-            <Navigation className="h-5 w-5 mr-2" />
-            Directions
+            <Navigation className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={handleAddToCart}
+          >
+            <ShoppingCart className="h-5 w-5 mr-2" />
+            Add to Cart
           </Button>
           <Button 
             className={cn(
