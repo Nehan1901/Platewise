@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import { ThemeProvider } from "./components/theme-provider";
 import { FavoritesProvider } from "./contexts/FavoritesContext";
 import { AuthProvider } from "./contexts/AuthContext";
+import { CartProvider } from "./contexts/CartContext";
 import HouseholdDashboard from "./pages/HouseholdDashboard";
 import BusinessDashboard from "./pages/BusinessDashboard";
 import BusinessProfileSetup from "./pages/BusinessProfileSetup";
