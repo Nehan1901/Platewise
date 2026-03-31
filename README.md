@@ -82,10 +82,6 @@ VITE_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
 - **Predictive analytics** — forecast surplus patterns so businesses can adjust production earlier
 - **Community forum** — space for users to share zero-waste recipes and tips
 
----
 
-## Author
-
-**Nehan Anagam** — M.S. Computer Science, University of South Florida (May 2026)
 
 [LinkedIn](https://linkedin.com/in/nehan-anagam) · [GitHub](https://github.com/Nehan1901)
