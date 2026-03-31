@@ -1,4 +1,4 @@
-# 🌱 PlateWise
+#  PlateWise
 
 <p align="center">
   <b>Waste Less. Live More.</b><br/>
