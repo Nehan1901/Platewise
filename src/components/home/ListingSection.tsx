@@ -60,11 +60,11 @@ const ListingSection = ({ title, listings, loading, badge }: ListingSectionProps
         </button>
       </div>
       
-      <div className="flex gap-4 overflow-x-auto hide-scrollbar px-4 md:px-6 pb-2">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-4 md:px-6 pb-2">
         {listings.map((listing, index) => (
           <div 
             key={listing.id} 
-            className="flex-shrink-0 w-72 animate-fade-in"
+            className="animate-fade-in"
             style={{ animationDelay: `${index * 50}ms` }}
           >
             <ListingCardNew listing={listing} badge={badge} />
