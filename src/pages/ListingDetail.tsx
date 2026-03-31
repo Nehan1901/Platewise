@@ -910,7 +910,7 @@ const ListingDetail = () => {
                     </div>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground">{review.comment}</p>
+                <p className="text-sm text-foreground/70">{review.comment}</p>
               </div>
             ))}
           </div>
