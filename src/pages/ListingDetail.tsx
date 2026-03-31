@@ -880,7 +880,7 @@ const ListingDetail = () => {
                       ))}
                     </div>
                   </div>
-                  {review.comment && <p className="text-sm text-muted-foreground">{review.comment}</p>}
+                  {review.comment && <p className="text-sm text-foreground/70">{review.comment}</p>}
                 </div>
               ))}
             </div>
