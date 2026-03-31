@@ -284,7 +284,7 @@ const Index = () => {
       <main>
         
         {/* Category Filters */}
-        <div className="py-3 bg-background sticky top-0 z-40 border-b border-border">
+         <div className="py-3 bg-background sticky top-[57px] z-40 border-b border-border">
           <CategoryFilters
             selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}

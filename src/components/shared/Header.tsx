@@ -32,7 +32,7 @@ const Header = ({ locationName, showLocation = false }: HeaderProps) => {
 
   return (
     <header className="py-3 px-4 md:px-6 border-b sticky top-0 bg-background/95 backdrop-blur-sm z-50">
-      <div className="container mx-auto flex justify-between items-center gap-3">
+      <div className="flex justify-between items-center gap-3">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group shrink-0">
           <UtensilsCrossed className="h-6 w-6 text-primary transition-transform duration-300 ease-in-out group-hover:rotate-12" />
