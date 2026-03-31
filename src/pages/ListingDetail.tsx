@@ -869,7 +869,7 @@ const ListingDetail = () => {
           {dbReviews.length > 0 && (
             <div className="space-y-3 mb-4">
               {dbReviews.map((review) => (
-                <div key={review.id} className="p-4 bg-secondary rounded-xl space-y-2">
+                <div key={review.id} className="p-4 bg-muted/30 border border-border rounded-xl space-y-2">
                   <div className="flex items-center justify-between">
                     <p className="text-xs text-muted-foreground">
                       {new Date(review.created_at).toLocaleDateString()}
