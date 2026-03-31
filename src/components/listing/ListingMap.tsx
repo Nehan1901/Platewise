@@ -73,7 +73,7 @@ const ListingMap = ({ latitude, longitude, businessName }: ListingMapProps) => {
 
   if (showTokenInput && !isMapLoaded) {
     return (
-      <div className="rounded-xl overflow-hidden border bg-secondary p-6 space-y-4">
+      <div className="rounded-xl overflow-hidden border border-border bg-card p-6 space-y-4">
         <div className="flex items-center gap-2 text-muted-foreground">
           <MapPin className="h-5 w-5" />
           <span>Enter your Mapbox token to view the map</span>
@@ -108,7 +108,7 @@ const ListingMap = ({ latitude, longitude, businessName }: ListingMapProps) => {
             rel="noopener noreferrer"
             className="block"
           >
-            <div className="aspect-video bg-muted flex items-center justify-center relative">
+            <div className="aspect-video bg-card flex items-center justify-center relative">
               <img
                 src={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-l+16a34a(${longitude},${latitude})/${longitude},${latitude},14,0/600x300@2x?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw`}
                 alt="Map preview"
@@ -117,7 +117,7 @@ const ListingMap = ({ latitude, longitude, businessName }: ListingMapProps) => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
-              <div className="absolute inset-0 flex items-center justify-center bg-muted/50">
+              <div className="absolute inset-0 flex items-center justify-center bg-card/80">
                 <div className="text-center">
                   <MapPin className="h-12 w-12 text-primary mx-auto mb-2" />
                   <p className="font-medium">{businessName}</p>

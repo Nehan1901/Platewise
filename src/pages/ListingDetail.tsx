@@ -682,6 +682,14 @@ const ListingDetail = () => {
             <Button 
               variant="ghost" 
               size="icon"
+              onClick={() => navigate("/cart")}
+              className="bg-card/80 backdrop-blur-sm hover:bg-card shadow-lg"
+            >
+              <ShoppingCart className="h-5 w-5" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon"
               className="bg-card/80 backdrop-blur-sm hover:bg-card shadow-lg"
             >
               <Share2 className="h-5 w-5" />
@@ -818,11 +826,11 @@ const ListingDetail = () => {
           </h2>
           <div className="grid grid-cols-2 gap-4">
             {Object.entries(listing.rating_breakdown).map(([key, value]) => (
-              <div key={key} className="flex items-center justify-between p-3 bg-secondary rounded-lg">
-                <span className="capitalize text-sm">{key}</span>
+              <div key={key} className="flex items-center justify-between p-3 bg-muted/30 border border-border rounded-lg">
+                <span className="capitalize text-sm text-foreground">{key}</span>
                 <div className="flex items-center gap-1">
                   <Star className="h-3.5 w-3.5 fill-rating text-rating" />
-                  <span className="font-semibold">{value}</span>
+                  <span className="font-semibold text-foreground">{value}</span>
                 </div>
               </div>
             ))}
@@ -861,7 +869,7 @@ const ListingDetail = () => {
           {dbReviews.length > 0 && (
             <div className="space-y-3 mb-4">
               {dbReviews.map((review) => (
-                <div key={review.id} className="p-4 bg-secondary rounded-xl space-y-2">
+                <div key={review.id} className="p-4 bg-muted/30 border border-border rounded-xl space-y-2">
                   <div className="flex items-center justify-between">
                     <p className="text-xs text-muted-foreground">
                       {new Date(review.created_at).toLocaleDateString()}
@@ -872,7 +880,7 @@ const ListingDetail = () => {
                       ))}
                     </div>
                   </div>
-                  {review.comment && <p className="text-sm text-muted-foreground">{review.comment}</p>}
+                  {review.comment && <p className="text-sm text-foreground/70">{review.comment}</p>}
                 </div>
               ))}
             </div>
@@ -881,7 +889,7 @@ const ListingDetail = () => {
           {/* Mock Reviews */}
           <div className="space-y-4">
             {listing.reviews.map((review) => (
-              <div key={review.id} className="p-4 bg-secondary rounded-xl space-y-2">
+              <div key={review.id} className="p-4 bg-muted/30 border border-border rounded-xl space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
@@ -902,14 +910,14 @@ const ListingDetail = () => {
                     </div>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground">{review.comment}</p>
+                <p className="text-sm text-foreground/70">{review.comment}</p>
               </div>
             ))}
           </div>
 
           {/* Review Submission */}
           {user && (
-            <div className="mt-4 p-4 bg-secondary rounded-xl space-y-3">
+            <div className="mt-4 p-4 bg-muted/30 border border-border rounded-xl space-y-3">
               <h3 className="font-medium text-sm">Leave a Review</h3>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (

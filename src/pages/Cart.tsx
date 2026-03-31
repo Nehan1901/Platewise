@@ -1,9 +1,15 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, MoreVertical, Trash2, Minus, Plus, ShoppingCart } from "lucide-react";
+import { ArrowLeft, MoreVertical, Trash2, Minus, Plus, ShoppingCart, X, Share2, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/contexts/CartContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -22,16 +28,36 @@ const Cart = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-lg font-semibold">My Cart ({items.length})</h1>
-          <Button variant="ghost" size="icon" className="rounded-full" onClick={clearCart} disabled={items.length === 0}>
-            <MoreVertical className="h-5 w-5" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full" disabled={items.length === 0}>
+                <MoreVertical className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={clearCart} className="text-destructive focus:text-destructive">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Clear Cart
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/favorites")}>
+                <Bookmark className="h-4 w-4 mr-2" />
+                Save for Later
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => {
+                navigator.clipboard.writeText(items.map(i => i.title).join(", "));
+              }}>
+                <Share2 className="h-4 w-4 mr-2" />
+                Share Cart
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
 
       <div className="p-4 space-y-4">
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
+            <div className="w-20 h-20 rounded-full bg-muted/30 flex items-center justify-center mb-4">
               <ShoppingCart className="h-10 w-10 text-muted-foreground" />
             </div>
             <h3 className="text-lg font-semibold mb-2">Your cart is empty</h3>

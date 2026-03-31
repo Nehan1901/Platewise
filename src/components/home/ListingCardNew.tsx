@@ -1,8 +1,10 @@
-import { Heart, Star, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart, Star, Clock, ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useFavorites } from "@/contexts/FavoritesContext";
+import { useCart } from "@/contexts/CartContext";
+import { toast } from "@/hooks/use-toast";
 
 interface ListingCardNewProps {
   listing: {
@@ -26,6 +28,7 @@ interface ListingCardNewProps {
 const ListingCardNew = ({ listing, badge }: ListingCardNewProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { addItem } = useCart();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -184,6 +187,26 @@ const ListingCardNew = ({ listing, badge }: ListingCardNewProps) => {
             {badge}
           </div>
         )}
+
+        {/* Quick Add to Cart */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            addItem({
+              listing_id: listing.id,
+              title: listing.title,
+              business_name: listing.business_name,
+              price: listing.discounted_price,
+              original_price: listing.original_price,
+              image: listing.image_url,
+              pickup_time: listing.pickup_time,
+            });
+            toast({ title: "Added to cart", description: `${listing.title} added.` });
+          }}
+          className="absolute bottom-3 right-3 w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:bg-primary/90 transition-all hover:scale-110 active:scale-95"
+        >
+          <ShoppingCart className="h-4 w-4" />
+        </button>
         
       </div>
       
