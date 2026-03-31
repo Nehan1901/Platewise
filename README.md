@@ -274,11 +274,6 @@ The project shows how software can create measurable value for both businesses a
 - Carbon impact estimation per transaction
 - Business-side forecasting for surplus generation patterns
 
----
-
-## 📌 Resume-Friendly Summary
-
-Built a full-stack surplus food marketplace that connects businesses with nearby households to reduce food waste and improve food affordability. Implemented geospatial listing discovery, Stripe checkout, Supabase-backed realtime workflows, pantry tracking, and AI-powered recipe recommendations in a production-deployed web application.
 
 ---
 
