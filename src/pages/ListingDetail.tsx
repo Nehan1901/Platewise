@@ -826,11 +826,11 @@ const ListingDetail = () => {
           </h2>
           <div className="grid grid-cols-2 gap-4">
             {Object.entries(listing.rating_breakdown).map(([key, value]) => (
-              <div key={key} className="flex items-center justify-between p-3 bg-secondary rounded-lg">
-                <span className="capitalize text-sm">{key}</span>
+              <div key={key} className="flex items-center justify-between p-3 bg-muted/30 border border-border rounded-lg">
+                <span className="capitalize text-sm text-foreground">{key}</span>
                 <div className="flex items-center gap-1">
                   <Star className="h-3.5 w-3.5 fill-rating text-rating" />
-                  <span className="font-semibold">{value}</span>
+                  <span className="font-semibold text-foreground">{value}</span>
                 </div>
               </div>
             ))}
