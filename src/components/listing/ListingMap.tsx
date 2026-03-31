@@ -73,7 +73,7 @@ const ListingMap = ({ latitude, longitude, businessName }: ListingMapProps) => {
 
   if (showTokenInput && !isMapLoaded) {
     return (
-      <div className="rounded-xl overflow-hidden border bg-secondary p-6 space-y-4">
+      <div className="rounded-xl overflow-hidden border border-border bg-card p-6 space-y-4">
         <div className="flex items-center gap-2 text-muted-foreground">
           <MapPin className="h-5 w-5" />
           <span>Enter your Mapbox token to view the map</span>
