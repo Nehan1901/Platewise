@@ -682,6 +682,14 @@ const ListingDetail = () => {
             <Button 
               variant="ghost" 
               size="icon"
+              onClick={() => navigate("/cart")}
+              className="bg-card/80 backdrop-blur-sm hover:bg-card shadow-lg"
+            >
+              <ShoppingCart className="h-5 w-5" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon"
               className="bg-card/80 backdrop-blur-sm hover:bg-card shadow-lg"
             >
               <Share2 className="h-5 w-5" />
