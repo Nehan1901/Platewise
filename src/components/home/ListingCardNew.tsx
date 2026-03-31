@@ -1,8 +1,10 @@
-import { Heart, Star, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart, Star, Clock, ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useFavorites } from "@/contexts/FavoritesContext";
+import { useCart } from "@/contexts/CartContext";
+import { toast } from "@/hooks/use-toast";
 
 interface ListingCardNewProps {
   listing: {
