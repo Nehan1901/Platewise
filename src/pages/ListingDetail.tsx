@@ -889,7 +889,7 @@ const ListingDetail = () => {
           {/* Mock Reviews */}
           <div className="space-y-4">
             {listing.reviews.map((review) => (
-              <div key={review.id} className="p-4 bg-secondary rounded-xl space-y-2">
+              <div key={review.id} className="p-4 bg-muted/30 border border-border rounded-xl space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
