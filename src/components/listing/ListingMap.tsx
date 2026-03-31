@@ -117,7 +117,7 @@ const ListingMap = ({ latitude, longitude, businessName }: ListingMapProps) => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
-              <div className="absolute inset-0 flex items-center justify-center bg-muted/50">
+              <div className="absolute inset-0 flex items-center justify-center bg-card/80">
                 <div className="text-center">
                   <MapPin className="h-12 w-12 text-primary mx-auto mb-2" />
                   <p className="font-medium">{businessName}</p>
