@@ -108,7 +108,7 @@ const ListingMap = ({ latitude, longitude, businessName }: ListingMapProps) => {
             rel="noopener noreferrer"
             className="block"
           >
-            <div className="aspect-video bg-muted flex items-center justify-center relative">
+            <div className="aspect-video bg-card flex items-center justify-center relative">
               <img
                 src={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-l+16a34a(${longitude},${latitude})/${longitude},${latitude},14,0/600x300@2x?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw`}
                 alt="Map preview"
