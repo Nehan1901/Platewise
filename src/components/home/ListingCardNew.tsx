@@ -28,6 +28,7 @@ interface ListingCardNewProps {
 const ListingCardNew = ({ listing, badge }: ListingCardNewProps) => {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { addItem } = useCart();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
