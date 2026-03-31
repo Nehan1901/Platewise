@@ -917,7 +917,7 @@ const ListingDetail = () => {
 
           {/* Review Submission */}
           {user && (
-            <div className="mt-4 p-4 bg-secondary rounded-xl space-y-3">
+            <div className="mt-4 p-4 bg-muted/30 border border-border rounded-xl space-y-3">
               <h3 className="font-medium text-sm">Leave a Review</h3>
               <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
