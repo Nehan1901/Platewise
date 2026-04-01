@@ -35,6 +35,9 @@ import HowItWorks from "./pages/HowItWorks";
 import Careers from "./pages/Careers";
 import HiddenStores from "./pages/HiddenStores";
 import Legal from "./pages/Legal";
+import RoleSelection from "./pages/RoleSelection";
+import RestaurantOrders from "./pages/RestaurantOrders";
+import RestaurantAnalytics from "./pages/RestaurantAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -53,17 +56,14 @@ const App = () => (
                 <Route path="/discover" element={<Discover />} />
                 <Route path="/favorites" element={<Favorites />} />
                 <Route path="/listing/:id" element={<ListingDetail />} />
-                <Route
-                  path="/dashboard-household"
-                  element={<HouseholdDashboard />}
-                />
-                <Route
-                  path="/dashboard-business"
-                  element={<BusinessDashboard />}
-                />
+                <Route path="/select-role" element={<RoleSelection />} />
+                <Route path="/dashboard-household" element={<HouseholdDashboard />} />
+                <Route path="/dashboard-business" element={<BusinessDashboard />} />
                 <Route path="/business-profile" element={<BusinessProfileSetup />} />
                 <Route path="/create-listing" element={<CreateListing />} />
                 <Route path="/my-listings" element={<MyListings />} />
+                <Route path="/restaurant-orders" element={<RestaurantOrders />} />
+                <Route path="/restaurant-analytics" element={<RestaurantAnalytics />} />
                 <Route path="/checkout/:id" element={<Checkout />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />
                 <Route path="/cart" element={<Cart />} />
@@ -95,5 +95,3 @@ const App = () => (
 );
 
 export default App;
-
-

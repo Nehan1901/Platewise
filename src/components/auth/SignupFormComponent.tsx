@@ -53,7 +53,7 @@ export const SignupFormComponent = ({ onSuccess }: SignupFormComponentProps) => 
     
     const redirectUrl = `${window.location.origin}/`;
 
-    const { error } = await supabase.auth.signUp({
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email: values.email,
       password: values.password,
       options: {
@@ -79,6 +79,15 @@ export const SignupFormComponent = ({ onSuccess }: SignupFormComponentProps) => 
         });
       }
       return;
+    }
+
+    // Insert role into user_roles table if user was created
+    if (signUpData.user) {
+      const role = values.userType === "business" ? "business" : "consumer";
+      await supabase.from("user_roles").insert({
+        user_id: signUpData.user.id,
+        role: role as any,
+      });
     }
 
     toast.success("Check your email!", {
