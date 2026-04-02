@@ -14,7 +14,7 @@ import {
   Trash2,
   Loader2
 } from "lucide-react";
-import Header from "@/components/shared/Header";
+import PageHeader from "@/components/shared/PageHeader";
 import BottomNav from "@/components/shared/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -323,7 +323,7 @@ const Wallet = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-background pb-20 md:pb-0">
-        <Header />
+        <PageHeader title="Wallet" />
         <main className="container mx-auto px-4 py-12 text-center">
           <WalletIcon className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
           <h1 className="text-2xl font-bold mb-2">Sign in to access your Wallet</h1>
@@ -336,7 +336,7 @@ const Wallet = () => {
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
-      <Header />
+      <PageHeader title="Wallet" />
       
       <main className="container mx-auto px-4 py-6 max-w-3xl">
         {/* Header */}
