@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Gift, Plus, Ticket, Clock } from "lucide-react";
+import { Gift, Plus, Ticket, Clock, AlertTriangle, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,8 +16,13 @@ interface Voucher {
   isUsed: boolean;
 }
 
+// Only these codes are valid and recognized by PlateWise
+const VALID_VOUCHER_CODES = new Set(["WELCOME10", "SAVEFOOD25", "PLATEWISE50", "FIRSTORDER"]);
+
 const Vouchers = () => {
   const [voucherCode, setVoucherCode] = useState("");
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [isBlocked, setIsBlocked] = useState(false);
   const [vouchers] = useState<Voucher[]>([
     {
       id: "1",
@@ -38,7 +43,18 @@ const Vouchers = () => {
   ]);
 
   const handleRedeemVoucher = () => {
-    if (!voucherCode.trim()) {
+    if (isBlocked) {
+      toast({
+        title: "⛔ Redemption Blocked",
+        description: "Too many invalid attempts. Please try again later or contact support.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const trimmed = voucherCode.trim().toUpperCase();
+
+    if (!trimmed) {
       toast({
         title: "Enter a code",
         description: "Please enter a voucher code to redeem.",
@@ -46,11 +62,52 @@ const Vouchers = () => {
       });
       return;
     }
-    
+
+    // Check if already redeemed
+    const alreadyExists = vouchers.some((v) => v.code === trimmed);
+    if (alreadyExists) {
+      toast({
+        title: "Already redeemed",
+        description: "This voucher is already in your account.",
+        variant: "destructive",
+      });
+      setVoucherCode("");
+      return;
+    }
+
+    // Validate against known codes
+    if (!VALID_VOUCHER_CODES.has(trimmed)) {
+      const newAttempts = failedAttempts + 1;
+      setFailedAttempts(newAttempts);
+
+      if (newAttempts >= 5) {
+        setIsBlocked(true);
+        toast({
+          title: "⛔ Too many invalid attempts",
+          description: "Voucher redemption has been temporarily disabled. Please contact support if you believe this is an error.",
+          variant: "destructive",
+        });
+        // Auto-unblock after 5 minutes
+        setTimeout(() => {
+          setIsBlocked(false);
+          setFailedAttempts(0);
+        }, 5 * 60 * 1000);
+      } else {
+        toast({
+          title: "Invalid voucher code",
+          description: `This code is not recognized. Please check and try again. (${5 - newAttempts} attempts remaining)`,
+          variant: "destructive",
+        });
+      }
+      setVoucherCode("");
+      return;
+    }
+
     toast({
       title: "Voucher redeemed!",
       description: "The voucher has been added to your account.",
     });
+    setFailedAttempts(0);
     setVoucherCode("");
   };
 
