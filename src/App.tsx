@@ -38,6 +38,7 @@ import Legal from "./pages/Legal";
 import RoleSelection from "./pages/RoleSelection";
 import RestaurantOrders from "./pages/RestaurantOrders";
 import RestaurantAnalytics from "./pages/RestaurantAnalytics";
+import LegalDetail from "./pages/LegalDetail";
 
 const queryClient = new QueryClient();
 
@@ -82,6 +83,7 @@ const App = () => (
                 <Route path="/careers" element={<Careers />} />
                 <Route path="/hidden-stores" element={<HiddenStores />} />
                 <Route path="/legal" element={<Legal />} />
+                <Route path="/legal/:slug" element={<LegalDetail />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
