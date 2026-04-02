@@ -129,9 +129,29 @@ const Vouchers = () => {
                 value={voucherCode}
                 onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
                 className="flex-1"
+                disabled={isBlocked}
+                maxLength={20}
               />
-              <Button onClick={handleRedeemVoucher}>Redeem</Button>
+              <Button onClick={handleRedeemVoucher} disabled={isBlocked}>
+                Redeem
+              </Button>
             </div>
+            {isBlocked && (
+              <div className="mt-3 flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                <ShieldAlert className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+                <p className="text-xs text-destructive">
+                  Redemption temporarily disabled due to multiple invalid attempts. Please try again in 5 minutes.
+                </p>
+              </div>
+            )}
+            {failedAttempts > 0 && !isBlocked && (
+              <div className="mt-3 flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-600 dark:text-amber-400">
+                  Only official PlateWise voucher codes are accepted. {5 - failedAttempts} attempts remaining before temporary block.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
