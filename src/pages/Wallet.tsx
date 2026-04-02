@@ -14,7 +14,7 @@ import {
   Trash2,
   Loader2
 } from "lucide-react";
-import Header from "@/components/shared/Header";
+import PageHeader from "@/components/shared/PageHeader";
 import BottomNav from "@/components/shared/BottomNav";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
