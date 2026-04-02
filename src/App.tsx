@@ -38,6 +38,7 @@ import Legal from "./pages/Legal";
 import RoleSelection from "./pages/RoleSelection";
 import RestaurantOrders from "./pages/RestaurantOrders";
 import RestaurantAnalytics from "./pages/RestaurantAnalytics";
+import LegalDetail from "./pages/LegalDetail";
 
 const queryClient = new QueryClient();
 
