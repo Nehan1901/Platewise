@@ -323,7 +323,7 @@ const Wallet = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-background pb-20 md:pb-0">
-        <Header />
+        <PageHeader title="Wallet" />
         <main className="container mx-auto px-4 py-12 text-center">
           <WalletIcon className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
           <h1 className="text-2xl font-bold mb-2">Sign in to access your Wallet</h1>
