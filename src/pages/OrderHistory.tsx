@@ -16,7 +16,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 import BottomNav from "@/components/shared/BottomNav";
 import PageHeader from "@/components/shared/PageHeader";
-import BottomNav from "@/components/shared/BottomNav";
 
 interface Order {
   id: string;
