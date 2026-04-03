@@ -129,18 +129,7 @@ const OrderHistory = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b">
-        <div className="flex items-center gap-4 p-4">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => navigate("/")}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-xl font-bold">Order History</h1>
-        </div>
-      </header>
+      <PageHeader title="Order History" />
 
       <main className="p-4 space-y-4">
         {loading ? (
