@@ -3,20 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
-  ArrowLeft, 
   Clock, 
-  MapPin, 
   CheckCircle2, 
   XCircle, 
   Package,
   Copy,
   Check
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
+import BottomNav from "@/components/shared/BottomNav";
+import PageHeader from "@/components/shared/PageHeader";
 import BottomNav from "@/components/shared/BottomNav";
 
 interface Order {
