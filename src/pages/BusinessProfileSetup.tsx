@@ -30,14 +30,18 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 const REQUEST_TIMEOUT_MS = 15000;
 
-const createTimeoutController = (timeoutMs = REQUEST_TIMEOUT_MS) => {
-  const controller = new AbortController();
-  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+const withTimeout = async <T,>(promise: PromiseLike<T>, timeoutMs = REQUEST_TIMEOUT_MS): Promise<T> => {
+  let timeoutId: number;
 
-  return {
-    signal: controller.signal,
-    clear: () => window.clearTimeout(timeoutId),
-  };
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = window.setTimeout(() => reject(new Error("Request timed out")), timeoutMs);
+  });
+
+  try {
+    return await Promise.race([Promise.resolve(promise), timeoutPromise]);
+  } finally {
+    window.clearTimeout(timeoutId!);
+  }
 };
 
 const BusinessProfileSetup = () => {
@@ -60,15 +64,14 @@ const BusinessProfileSetup = () => {
   const loadProfile = async () => {
     if (!user) return;
 
-    const request = createTimeoutController();
-
     try {
-      const { data, error } = await supabase
-        .from("business_profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle()
-        .abortSignal(request.signal);
+      const { data, error } = await withTimeout(
+        supabase
+          .from("business_profiles")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle()
+      );
 
       if (error) throw error;
 
@@ -86,8 +89,6 @@ const BusinessProfileSetup = () => {
       }
     } catch (error) {
       console.error("Failed to load business profile:", error);
-    } finally {
-      request.clear();
     }
   };
 
@@ -107,35 +108,22 @@ const BusinessProfileSetup = () => {
     setLoading(true);
 
     try {
-      const roleLookupRequest = createTimeoutController();
+      const { data: currentRole, error: roleLookupError } = await withTimeout(
+        supabase.rpc("get_user_role", { _user_id: user.id })
+      );
 
-      try {
-        const { data: currentRole, error: roleLookupError } = await supabase
-          .rpc("get_user_role", { _user_id: user.id })
-          .abortSignal(roleLookupRequest.signal);
+      if (roleLookupError) throw roleLookupError;
 
-        if (roleLookupError) throw roleLookupError;
+      if (!currentRole) {
+        const { error: roleInsertError } = await withTimeout(
+          supabase.from("user_roles").insert({ user_id: user.id, role: "business" })
+        );
 
-        if (!currentRole) {
-          const roleInsertRequest = createTimeoutController();
+        if (roleInsertError) throw roleInsertError;
 
-          try {
-            const { error: roleInsertError } = await supabase
-              .from("user_roles")
-              .insert({ user_id: user.id, role: "business" })
-              .abortSignal(roleInsertRequest.signal);
-
-            if (roleInsertError) throw roleInsertError;
-          } finally {
-            roleInsertRequest.clear();
-          }
-
-          await refreshRole();
-        } else if (currentRole !== "business") {
-          throw new Error("This account is currently set up as a customer. Please use a restaurant account to create a business profile.");
-        }
-      } finally {
-        roleLookupRequest.clear();
+        await refreshRole();
+      } else if (currentRole !== "business") {
+        throw new Error("This account is currently set up as a customer. Please use a restaurant account to create a business profile.");
       }
 
       let logoUrl = existingProfile?.logo_url || null;
@@ -143,9 +131,9 @@ const BusinessProfileSetup = () => {
       if (logoFile) {
         const ext = logoFile.name.split(".").pop();
         const path = `${user.id}/logo.${ext}`;
-        const uploadRequest = createTimeoutController();
-        const { error: uploadError } = await supabase.storage.from("listing-images").upload(path, logoFile, { upsert: true });
-        uploadRequest.clear();
+        const { error: uploadError } = await withTimeout(
+          supabase.storage.from("listing-images").upload(path, logoFile, { upsert: true })
+        );
         if (uploadError) {
           console.error("Logo upload error:", uploadError);
         } else {
@@ -165,18 +153,13 @@ const BusinessProfileSetup = () => {
         logo_url: logoUrl,
       };
 
-      const saveRequest = createTimeoutController();
-
-      try {
-        const { error } = await supabase
+      const { error } = await withTimeout(
+        supabase
           .from("business_profiles")
           .upsert(profileData, { onConflict: "user_id" })
-          .abortSignal(saveRequest.signal);
+      );
 
-        if (error) throw error;
-      } finally {
-        saveRequest.clear();
-      }
+      if (error) throw error;
 
       toast.success(existingProfile ? "Profile updated!" : "Profile created!");
       navigate("/dashboard-business", { replace: true });
