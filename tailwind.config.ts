@@ -32,13 +32,14 @@ export default {
     				'Noto Sans',
     				'sans-serif'
     			],
-    			display: [
-    				'Plus Jakarta Sans',
-    				'system-ui',
-    				'sans-serif'
-    			],
-    			serif: [
-    				'Lora',
+			display: [
+				'Playfair Display',
+				'system-ui',
+				'serif'
+			],
+			serif: [
+				'Playfair Display',
+				'Lora',
     				'ui-serif',
     				'Georgia',
     				'Cambria',
