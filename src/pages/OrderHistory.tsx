@@ -42,18 +42,15 @@ const OrderHistory = () => {
   const navigate = useNavigate();
   const { user, isLoading: authLoading } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
+    if (!user) return;
 
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-
+    setLoading(true);
     const fetchOrders = async () => {
       const { data, error } = await supabase
         .from("orders")
