@@ -63,7 +63,17 @@ const CreateListing = () => {
 
   const form = useForm<ListingFormValues>({
     resolver: zodResolver(listingFormSchema),
-    defaultValues: { dietaryInfo: [], allergenInfo: [], quantityUnit: "servings", itemType: "prepared_food" },
+    defaultValues: { 
+      title: "",
+      description: "",
+      itemType: "prepared_food",
+      originalPrice: undefined as unknown as number,
+      discountedPrice: undefined as unknown as number,
+      quantity: undefined as unknown as number,
+      quantityUnit: "servings",
+      dietaryInfo: [], 
+      allergenInfo: [],
+    },
   });
 
   useEffect(() => {
@@ -103,8 +113,10 @@ const CreateListing = () => {
         const file = imageFiles[i];
         const ext = file.name.split(".").pop();
         const path = `${businessId}/${Date.now()}-${i}.${ext}`;
-        const { error } = await supabase.storage.from("listing-images").upload(path, file);
-        if (!error) {
+        const { error: uploadError } = await supabase.storage.from("listing-images").upload(path, file);
+        if (uploadError) {
+          console.error("Image upload error:", uploadError);
+        } else {
           const { data } = supabase.storage.from("listing-images").getPublicUrl(path);
           imageUrls.push(data.publicUrl);
         }
@@ -154,7 +166,12 @@ const CreateListing = () => {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
+                const firstError = Object.values(errors)[0];
+                if (firstError) {
+                  toast.error("Please fix form errors", { description: firstError.message as string });
+                }
+              })} className="space-y-6">
                 <FormField control={form.control} name="title" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Title</FormLabel>
