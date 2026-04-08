@@ -15,6 +15,23 @@ const json = (body: unknown, status = 200) =>
     },
   });
 
+const decodeDataUrl = (dataUrl: string) => {
+  const [, base64 = ""] = dataUrl.split(",");
+
+  if (!base64) {
+    throw new Error("Invalid logo image data.");
+  }
+
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+
+  return bytes;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -46,7 +63,8 @@ serve(async (req) => {
     const phone = typeof body.phone === "string" ? body.phone.trim() : "";
     const description = typeof body.description === "string" ? body.description.trim() : "";
     const website = typeof body.website === "string" ? body.website.trim() : "";
-    const logoUrl = typeof body.logoUrl === "string" ? body.logoUrl.trim() : "";
+    const existingLogoUrl = typeof body.existingLogoUrl === "string" ? body.existingLogoUrl.trim() : "";
+    const logo = body.logo && typeof body.logo === "object" ? body.logo : null;
 
     if (businessName.length < 2) {
       return json({ error: "Business name must be at least 2 characters." }, 400);
@@ -60,6 +78,36 @@ serve(async (req) => {
       return json({ error: "A valid phone number is required." }, 400);
     }
 
+    let finalLogoUrl = existingLogoUrl || null;
+    let logoUploadFailed = false;
+
+    if (logo?.dataUrl && logo?.contentType) {
+      try {
+        const extension = typeof logo.extension === "string" && logo.extension.trim().length > 0
+          ? logo.extension.trim().toLowerCase()
+          : "png";
+
+        const filePath = `${authData.user.id}/logo-${Date.now()}.${extension}`;
+        const fileBytes = decodeDataUrl(String(logo.dataUrl));
+
+        const { error: uploadError } = await supabaseAdmin.storage
+          .from("listing-images")
+          .upload(filePath, fileBytes, {
+            upsert: true,
+            contentType: String(logo.contentType),
+          });
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        finalLogoUrl = supabaseAdmin.storage.from("listing-images").getPublicUrl(filePath).data.publicUrl;
+      } catch (uploadError) {
+        logoUploadFailed = true;
+        console.error("SAVE_BUSINESS_PROFILE_LOGO_ERROR", uploadError);
+      }
+    }
+
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("business_profiles")
       .upsert(
@@ -71,7 +119,7 @@ serve(async (req) => {
           address,
           phone,
           website: website || null,
-          logo_url: logoUrl || null,
+          logo_url: finalLogoUrl,
         },
         { onConflict: "user_id" },
       )
