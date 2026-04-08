@@ -656,7 +656,7 @@ const ListingDetail = () => {
             >
               <ChevronRight className="h-5 w-5" />
             </button>
-            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-2">
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
               {listing.images.map((_, idx) => (
                 <button
                   key={idx}
