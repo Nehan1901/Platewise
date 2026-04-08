@@ -63,7 +63,17 @@ const CreateListing = () => {
 
   const form = useForm<ListingFormValues>({
     resolver: zodResolver(listingFormSchema),
-    defaultValues: { dietaryInfo: [], allergenInfo: [], quantityUnit: "servings", itemType: "prepared_food" },
+    defaultValues: { 
+      title: "",
+      description: "",
+      itemType: "prepared_food",
+      originalPrice: undefined as unknown as number,
+      discountedPrice: undefined as unknown as number,
+      quantity: undefined as unknown as number,
+      quantityUnit: "servings",
+      dietaryInfo: [], 
+      allergenInfo: [],
+    },
   });
 
   useEffect(() => {
