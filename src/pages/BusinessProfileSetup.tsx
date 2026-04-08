@@ -45,7 +45,7 @@ const withTimeout = async <T,>(promise: PromiseLike<T>, timeoutMs = REQUEST_TIME
 };
 
 const BusinessProfileSetup = () => {
-  const { user, refreshRole } = useAuth();
+  const { user, userRole, refreshRole } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [existingProfile, setExistingProfile] = useState<any>(null);
@@ -108,21 +108,7 @@ const BusinessProfileSetup = () => {
     setLoading(true);
 
     try {
-      const { data: currentRole, error: roleLookupError } = await withTimeout(
-        supabase.rpc("get_user_role", { _user_id: user.id })
-      );
-
-      if (roleLookupError) throw roleLookupError;
-
-      if (!currentRole) {
-        const { error: roleInsertError } = await withTimeout(
-          supabase.from("user_roles").insert({ user_id: user.id, role: "business" })
-        );
-
-        if (roleInsertError) throw roleInsertError;
-
-        await refreshRole();
-      } else if (currentRole !== "business") {
+      if (userRole === "consumer") {
         throw new Error("This account is currently set up as a customer. Please use a restaurant account to create a business profile.");
       }
 
@@ -153,13 +139,35 @@ const BusinessProfileSetup = () => {
         logo_url: logoUrl,
       };
 
-      const { error } = await withTimeout(
-        supabase
-          .from("business_profiles")
-          .upsert(profileData, { onConflict: "user_id" })
-      );
+      const profileRequest = existingProfile
+        ? supabase
+            .from("business_profiles")
+            .update(profileData)
+            .eq("user_id", user.id)
+        : supabase
+            .from("business_profiles")
+            .insert(profileData);
+
+      const { error } = await withTimeout(profileRequest);
 
       if (error) throw error;
+
+      if (!userRole) {
+        try {
+          const { error: roleInsertError } = await withTimeout(
+            supabase.from("user_roles").insert({ user_id: user.id, role: "business" }),
+            5000
+          );
+
+          if (roleInsertError && roleInsertError.code !== "23505") {
+            throw roleInsertError;
+          }
+
+          void refreshRole();
+        } catch (roleError) {
+          console.error("Role sync error:", roleError);
+        }
+      }
 
       toast.success(existingProfile ? "Profile updated!" : "Profile created!");
       navigate("/dashboard-business", { replace: true });
