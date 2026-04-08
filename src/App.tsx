@@ -38,6 +38,10 @@ import Legal from "./pages/Legal";
 import RoleSelection from "./pages/RoleSelection";
 import RestaurantOrders from "./pages/RestaurantOrders";
 import RestaurantAnalytics from "./pages/RestaurantAnalytics";
+import RestaurantNotifications from "./pages/RestaurantNotifications";
+import RestaurantPublicProfile from "./pages/RestaurantPublicProfile";
+import RestaurantHelp from "./pages/RestaurantHelp";
+import RestaurantWallet from "./pages/RestaurantWallet";
 import LegalDetail from "./pages/LegalDetail";
 
 const queryClient = new QueryClient();
@@ -65,6 +69,10 @@ const App = () => (
                 <Route path="/my-listings" element={<MyListings />} />
                 <Route path="/restaurant-orders" element={<RestaurantOrders />} />
                 <Route path="/restaurant-analytics" element={<RestaurantAnalytics />} />
+                <Route path="/restaurant-notifications" element={<RestaurantNotifications />} />
+                <Route path="/restaurant-storefront" element={<RestaurantPublicProfile />} />
+                <Route path="/restaurant-help" element={<RestaurantHelp />} />
+                <Route path="/restaurant-wallet" element={<RestaurantWallet />} />
                 <Route path="/checkout/:id" element={<Checkout />} />
                 <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />
                 <Route path="/cart" element={<Cart />} />
