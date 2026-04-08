@@ -131,7 +131,10 @@ const BusinessProfileSetup = () => {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
+                  console.error("Form validation errors:", errors);
+                  toast.error("Please fix the form errors before submitting.");
+                })} className="space-y-6">
                 {/* Logo Upload */}
                 <div className="flex items-center gap-4">
                   <div className="relative">
