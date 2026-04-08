@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MapPin, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "@/components/theme-provider";
 
 interface ListingMapProps {
   latitude: number;
@@ -10,14 +11,28 @@ interface ListingMapProps {
 
 const MAPBOX_TOKEN = "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw";
 
+const LIGHT_STYLE = "mapbox://styles/mapbox/light-v11";
+const DARK_STYLE = "mapbox://styles/mapbox/dark-v11";
+
 const ListingMap = ({ latitude, longitude, businessName }: ListingMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<any>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [mapError, setMapError] = useState(false);
+  const { theme } = useTheme();
+
+  const resolvedTheme = theme === "system"
+    ? window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+    : theme;
 
   useEffect(() => {
-    if (!mapContainer.current || map.current) return;
+    if (!mapContainer.current) return;
+
+    // Remove old map if style changed
+    if (map.current) {
+      map.current.remove();
+      map.current = null;
+    }
 
     const loadMap = async () => {
       try {
@@ -28,17 +43,38 @@ const ListingMap = ({ latitude, longitude, businessName }: ListingMapProps) => {
 
         map.current = new mapboxgl.default.Map({
           container: mapContainer.current!,
-          style: "mapbox://styles/mapbox/streets-v12",
+          style: resolvedTheme === "dark" ? DARK_STYLE : LIGHT_STYLE,
           center: [longitude, latitude],
           zoom: 15,
+          attributionControl: false,
         });
 
-        new mapboxgl.default.Marker({ color: "#2d6a4f" })
+        map.current.addControl(
+          new mapboxgl.default.AttributionControl({ compact: true }),
+          "bottom-right"
+        );
+
+        // Custom marker element
+        const markerEl = document.createElement("div");
+        markerEl.innerHTML = `<svg width="32" height="40" viewBox="0 0 32 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 0C7.163 0 0 7.163 0 16c0 10 14.4 23.2 15.2 24 .4.4 1.2.4 1.6 0C17.6 39.2 32 26 32 16 32 7.163 24.837 0 16 0z" fill="${resolvedTheme === 'dark' ? '#6bbf8a' : '#2d6a4f'}"/>
+          <circle cx="16" cy="15" r="6" fill="white"/>
+        </svg>`;
+        markerEl.style.cursor = "pointer";
+
+        new mapboxgl.default.Marker({ element: markerEl, anchor: "bottom" })
           .setLngLat([longitude, latitude])
-          .setPopup(new mapboxgl.default.Popup().setHTML(`<strong>${businessName}</strong>`))
+          .setPopup(
+            new mapboxgl.default.Popup({ offset: 25, closeButton: false })
+              .setHTML(`<div style="font-family:'DM Sans',sans-serif;font-weight:600;font-size:13px;padding:2px 4px;">${businessName}</div>`)
+          )
           .addTo(map.current);
 
-        map.current.addControl(new mapboxgl.default.NavigationControl(), "top-right");
+        map.current.addControl(
+          new mapboxgl.default.NavigationControl({ showCompass: false }),
+          "top-right"
+        );
+
         setIsMapLoaded(true);
       } catch (error) {
         console.error("Error loading map:", error);
@@ -54,7 +90,7 @@ const ListingMap = ({ latitude, longitude, businessName }: ListingMapProps) => {
         map.current = null;
       }
     };
-  }, [latitude, longitude, businessName]);
+  }, [latitude, longitude, businessName, resolvedTheme]);
 
   const handleGetDirections = () => {
     window.open(
@@ -65,7 +101,7 @@ const ListingMap = ({ latitude, longitude, businessName }: ListingMapProps) => {
 
   if (mapError) {
     return (
-      <div className="rounded-xl overflow-hidden border border-border bg-card">
+      <div className="rounded-2xl overflow-hidden border border-border bg-card shadow-sm">
         <a
           href={`https://www.google.com/maps?q=${latitude},${longitude}`}
           target="_blank"
@@ -85,15 +121,15 @@ const ListingMap = ({ latitude, longitude, businessName }: ListingMapProps) => {
   }
 
   return (
-    <div className="space-y-2">
-      <div className="rounded-xl overflow-hidden border border-border h-[250px]">
+    <div className="space-y-3">
+      <div className="rounded-2xl overflow-hidden border border-border shadow-sm h-[280px]">
         <div ref={mapContainer} className="w-full h-full" />
       </div>
       {isMapLoaded && (
         <Button
           variant="outline"
           size="sm"
-          className="w-full"
+          className="w-full rounded-xl border-border hover:bg-accent"
           onClick={handleGetDirections}
         >
           <Navigation className="h-4 w-4 mr-2" />
