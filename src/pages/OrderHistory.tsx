@@ -40,15 +40,17 @@ interface Order {
 
 const OrderHistory = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
   useEffect(() => {
+    if (authLoading) return;
+
     if (!user) {
-      navigate("/");
+      setLoading(false);
       return;
     }
 
@@ -73,7 +75,7 @@ const OrderHistory = () => {
     };
 
     fetchOrders();
-  }, [user, navigate]);
+  }, [user, authLoading]);
 
   const copyPickupCode = (code: string) => {
     navigator.clipboard.writeText(code);
@@ -133,7 +135,7 @@ const OrderHistory = () => {
     });
   };
 
-  if (!user) return null;
+  
 
   return (
     <div className="min-h-screen bg-background pb-24">
