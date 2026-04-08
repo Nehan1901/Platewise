@@ -88,7 +88,7 @@ const RestaurantAnalytics = () => {
     <>
       <Header />
       <main className="px-4 md:px-6 py-6 max-w-4xl mx-auto pb-24 md:pb-6">
-        <PageHeader title="Analytics" />
+        <PageHeader title="Analytics" backTo="/dashboard-business" />
 
         {loading ? (
           <div className="space-y-4 mt-4">
