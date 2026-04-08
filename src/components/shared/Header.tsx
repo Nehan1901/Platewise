@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
-  UtensilsCrossed,
+  Leaf,
   Moon,
   Sun,
   Search,
@@ -39,15 +39,15 @@ const Header = ({ locationName, showLocation = false }: HeaderProps) => {
       <div className="flex justify-between items-center gap-3">
         {/* Logo */}
         <Link to={userRole === "business" ? "/dashboard-business" : "/"} className="flex items-center gap-2 group shrink-0">
-          <UtensilsCrossed className="h-6 w-6 text-primary transition-transform duration-300 ease-in-out group-hover:rotate-12" />
-          <span className="text-xl font-bold hidden sm:inline">PlateWise</span>
+          <Leaf className="h-6 w-6 text-primary transition-transform duration-300 ease-in-out group-hover:rotate-12" />
+          <span className="text-xl font-bold font-sans hidden sm:inline tracking-tight">PlateWise</span>
         </Link>
 
         {/* Location - Center (consumer only) */}
         {showLocation && userRole !== "business" && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 hover:bg-muted transition-colors cursor-pointer">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent hover:bg-accent/80 transition-colors cursor-pointer">
             <MapPin className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium truncate max-w-[120px] md:max-w-[180px]">
+            <span className="text-sm font-medium truncate max-w-[120px] md:max-w-[180px] font-sans">
               {locationName || "Set location"}
             </span>
             <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
@@ -59,16 +59,16 @@ const Header = ({ locationName, showLocation = false }: HeaderProps) => {
           {/* Business-specific desktop nav */}
           {userRole === "business" && (
             <div className="hidden md:flex items-center gap-1">
-              <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard-business")} className="text-sm">
+              <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard-business")} className="text-sm font-sans">
                 <LayoutDashboard className="h-4 w-4 mr-1" /> Dashboard
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => navigate("/my-listings")} className="text-sm">
+              <Button variant="ghost" size="sm" onClick={() => navigate("/my-listings")} className="text-sm font-sans">
                 <Package className="h-4 w-4 mr-1" /> Listings
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => navigate("/restaurant-orders")} className="text-sm">
+              <Button variant="ghost" size="sm" onClick={() => navigate("/restaurant-orders")} className="text-sm font-sans">
                 <ClipboardList className="h-4 w-4 mr-1" /> Orders
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => navigate("/restaurant-analytics")} className="text-sm">
+              <Button variant="ghost" size="sm" onClick={() => navigate("/restaurant-analytics")} className="text-sm font-sans">
                 <BarChart3 className="h-4 w-4 mr-1" /> Analytics
               </Button>
             </div>
@@ -83,7 +83,7 @@ const Header = ({ locationName, showLocation = false }: HeaderProps) => {
               <Button variant="ghost" size="icon" onClick={() => navigate("/cart")} className="rounded-full h-9 w-9 relative">
                 <ShoppingCart className="h-5 w-5" />
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold font-sans">
                     {totalItems}
                   </span>
                 )}
@@ -103,10 +103,10 @@ const Header = ({ locationName, showLocation = false }: HeaderProps) => {
           ) : (
             <>
               <AuthModal mode="login">
-                <Button variant="ghost" size="sm" className="hidden sm:inline-flex">Log In</Button>
+                <Button variant="ghost" size="sm" className="hidden sm:inline-flex font-sans">Log In</Button>
               </AuthModal>
               <AuthModal mode="signup">
-                <Button size="sm">Sign Up</Button>
+                <Button size="sm" className="rounded-full font-sans">Sign Up</Button>
               </AuthModal>
             </>
           )}

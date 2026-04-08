@@ -234,7 +234,7 @@ const ListingCardNew = ({ listing, badge }: ListingCardNewProps) => {
           </button>
         </div>
         
-        <p className="text-sm text-muted-foreground">{bagType}</p>
+        <p className="text-sm text-muted-foreground font-sans">{bagType}</p>
         
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           {listing.pickup_time && (

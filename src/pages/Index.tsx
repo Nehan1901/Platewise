@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import Header from "@/components/shared/Header";
+import HeroSection from "@/components/home/HeroSection";
 import CategoryFilters from "@/components/home/CategoryFilters";
 import ListingSection from "@/components/home/ListingSection";
 import BottomNav from "@/components/shared/BottomNav";
@@ -161,7 +162,6 @@ const mockListings = [
     items_left: 4,
     bag_type: "Dinner Bag",
   },
-  // Free listings - restaurants giving away food before closing
   {
     id: "9",
     title: "Leftover Sandwich Platter",
@@ -241,22 +241,15 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const { latitude, longitude, loading, error, requestLocation, setManualLocation, locationName } = useGeolocation();
 
-  // Request location on mount
   useEffect(() => {
     requestLocation();
   }, [requestLocation]);
 
-  // Calculate distances and sort by proximity
   const listingsWithDistance = useMemo(() => {
     return mockListings.map((listing) => {
       let distance: number | undefined;
       if (latitude && longitude) {
-        distance = calculateDistance(
-          latitude,
-          longitude,
-          listing.latitude,
-          listing.longitude
-        );
+        distance = calculateDistance(latitude, longitude, listing.latitude, listing.longitude);
       }
       return { ...listing, distance };
     }).sort((a, b) => {
@@ -265,15 +258,11 @@ const Index = () => {
     });
   }, [latitude, longitude]);
 
-  // Filter by category
   const filteredListings = useMemo(() => {
-    if (selectedCategory === "all") {
-      return listingsWithDistance;
-    }
+    if (selectedCategory === "all") return listingsWithDistance;
     return listingsWithDistance.filter(listing => listing.category === selectedCategory);
   }, [listingsWithDistance, selectedCategory]);
 
-  // Split listings into sections
   const topPicks = filteredListings.filter(l => l.discounted_price > 0).slice(0, 4);
   const endingSoon = filteredListings.filter(l => l.discounted_price > 0).slice(2, 6);
   const freeListings = filteredListings.filter(l => l.discounted_price === 0);
@@ -281,41 +270,29 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <Header locationName={locationName} showLocation={true} />
+
       <main>
-        
+        {/* Hero */}
+        <HeroSection />
+
         {/* Category Filters */}
-         <div className="py-3 bg-background sticky top-[57px] z-40 border-b border-border">
+        <div className="py-3 bg-background sticky top-[57px] z-40 border-b border-border">
           <CategoryFilters
             selectedCategory={selectedCategory}
             onCategoryChange={setSelectedCategory}
           />
         </div>
-        
+
         {/* Listing Sections */}
         <div className="space-y-2 py-4">
-          <ListingSection
-            title="Top picks near you"
-            listings={topPicks}
-            loading={false}
-          />
-          
-          <ListingSection
-            title="Save before it's too late"
-            listings={endingSoon}
-            badge="Ending soon"
-            loading={false}
-          />
-          
+          <ListingSection title="Top picks near you" listings={topPicks} loading={false} />
+          <ListingSection title="Save before it's too late" listings={endingSoon} badge="Ending soon" loading={false} />
           {freeListings.length > 0 && (
-            <ListingSection
-              title="Free food — rescue before it's trashed"
-              listings={freeListings}
-              loading={false}
-            />
+            <ListingSection title="Free food — rescue before it's trashed" listings={freeListings} loading={false} />
           )}
         </div>
       </main>
-      
+
       <BottomNav />
     </div>
   );
