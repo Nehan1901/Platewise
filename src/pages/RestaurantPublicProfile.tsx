@@ -56,7 +56,7 @@ const RestaurantPublicProfile = () => {
     <>
       <Header />
       <main className="px-4 md:px-6 py-6 max-w-3xl mx-auto pb-24 md:pb-6">
-        <PageHeader title="Storefront Preview" rightAction={
+        <PageHeader title="Storefront Preview" backTo="/dashboard-business" rightAction={
           !loading && !profile ? (
             <Button size="sm" className="rounded-full" onClick={() => navigate("/business-profile")}>
               Set Up Profile
