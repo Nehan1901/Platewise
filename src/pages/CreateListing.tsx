@@ -113,8 +113,10 @@ const CreateListing = () => {
         const file = imageFiles[i];
         const ext = file.name.split(".").pop();
         const path = `${businessId}/${Date.now()}-${i}.${ext}`;
-        const { error } = await supabase.storage.from("listing-images").upload(path, file);
-        if (!error) {
+        const { error: uploadError } = await supabase.storage.from("listing-images").upload(path, file);
+        if (uploadError) {
+          console.error("Image upload error:", uploadError);
+        } else {
           const { data } = supabase.storage.from("listing-images").getPublicUrl(path);
           imageUrls.push(data.publicUrl);
         }
