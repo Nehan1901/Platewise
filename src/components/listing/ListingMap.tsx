@@ -9,7 +9,7 @@ interface ListingMapProps {
   businessName: string;
 }
 
-const MAPBOX_TOKEN = "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw";
+const MAPBOX_TOKEN = "pk.eyJ1IjoibmVoYW5hbmFnYW0iLCJhIjoiY21uZGljNDMzMWdrZTJwbjV3ZGRlbGpiaiJ9.xFsLczax-6ktxCtLsikglg";
 
 const LIGHT_STYLE = "mapbox://styles/mapbox/streets-v12";
 const DARK_STYLE = "mapbox://styles/mapbox/navigation-night-v1";
