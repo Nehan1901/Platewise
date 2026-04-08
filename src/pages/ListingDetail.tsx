@@ -722,7 +722,7 @@ const ListingDetail = () => {
       </header>
 
       {/* Scrollable Content Card */}
-      <div className="relative z-10 pb-28" style={{ marginTop: 'calc(45vh - 60px)', minMarginTop: '220px' }}>
+      <div className="relative z-10 pb-28" style={{ marginTop: 'max(220px, calc(45vh - 60px))' }}>
         <div className="bg-background rounded-t-3xl shadow-2xl min-h-screen">
           <div className="p-5 space-y-6">
             {/* Drag Handle */}
