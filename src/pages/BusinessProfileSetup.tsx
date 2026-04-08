@@ -75,17 +75,22 @@ const BusinessProfileSetup = () => {
   };
 
   const onSubmit = async (values: ProfileFormValues) => {
-    if (!user) return;
+    if (!user) {
+      toast.error("You must be logged in to create a profile.");
+      return;
+    }
     setLoading(true);
 
     try {
-      let logoUrl = existingProfile?.logo_url;
+      let logoUrl = existingProfile?.logo_url || null;
 
       if (logoFile) {
         const ext = logoFile.name.split(".").pop();
         const path = `${user.id}/logo.${ext}`;
         const { error: uploadError } = await supabase.storage.from("listing-images").upload(path, logoFile, { upsert: true });
-        if (!uploadError) {
+        if (uploadError) {
+          console.error("Logo upload error:", uploadError);
+        } else {
           const { data: urlData } = supabase.storage.from("listing-images").getPublicUrl(path);
           logoUrl = urlData.publicUrl;
         }
@@ -102,17 +107,22 @@ const BusinessProfileSetup = () => {
         logo_url: logoUrl,
       };
 
+      console.log("Submitting profile data:", profileData);
+
       if (existingProfile) {
-        const { error } = await supabase.from("business_profiles").update(profileData).eq("id", existingProfile.id);
+        const { error, data } = await supabase.from("business_profiles").update(profileData).eq("id", existingProfile.id).select();
+        console.log("Update result:", { error, data });
         if (error) throw error;
         toast.success("Profile updated!");
       } else {
-        const { error } = await supabase.from("business_profiles").insert(profileData);
+        const { error, data } = await supabase.from("business_profiles").insert(profileData).select();
+        console.log("Insert result:", { error, data });
         if (error) throw error;
         toast.success("Profile created!");
       }
       navigate("/dashboard-business");
     } catch (error: any) {
+      console.error("Profile save error:", error);
       toast.error("Error saving profile", { description: error.message });
     } finally {
       setLoading(false);
