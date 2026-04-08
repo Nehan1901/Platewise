@@ -1,4 +1,4 @@
-import { Compass, Search, Heart, ClipboardList, LayoutDashboard, Package, BarChart3, Store } from "lucide-react";
+import { Compass, Search, Heart, ClipboardList, LayoutDashboard, Package, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -45,7 +45,7 @@ const BottomNav = () => {
                 className={cn("h-5 w-5 transition-all", isActive && "scale-110")}
                 strokeWidth={isActive ? 2.5 : 2}
               />
-              <span className="text-xs font-medium">{item.label}</span>
+              <span className="text-xs font-medium font-sans">{item.label}</span>
             </Link>
           );
         })}
