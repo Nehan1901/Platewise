@@ -13,6 +13,7 @@ import BottomNav from "@/components/shared/BottomNav";
 
 const RestaurantPublicProfile = () => {
   const { user, isLoading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
