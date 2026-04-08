@@ -534,6 +534,15 @@ const ListingDetail = () => {
 
   const listing = mockListingDetails[id as keyof typeof mockListingDetails];
 
+  // Auto-scroll images every 3 seconds
+  useEffect(() => {
+    if (!listing || listing.images.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % listing.images.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [listing]);
+
   useEffect(() => {
     if (!id) return;
     supabase
