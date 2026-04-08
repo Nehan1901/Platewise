@@ -104,7 +104,15 @@ const CreateListing = () => {
   };
 
   const onSubmit = async (values: ListingFormValues) => {
-    if (!user || !businessId) return;
+    if (!user) {
+      toast.error("Please log in to create a listing.");
+      return;
+    }
+    if (!businessId) {
+      toast.error("No business profile found.", { description: "Please set up your business profile first." });
+      navigate("/business-profile");
+      return;
+    }
     setLoading(true);
 
     try {
