@@ -29,7 +29,6 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 const REQUEST_TIMEOUT_MS = 15000;
-const LOGO_UPLOAD_TIMEOUT_MS = 6000;
 const MAX_LOGO_SIZE_BYTES = 5 * 1024 * 1024;
 const SUPPORTED_LOGO_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 
@@ -47,8 +46,24 @@ const withTimeout = async <T,>(promise: PromiseLike<T>, timeoutMs = REQUEST_TIME
   }
 };
 
+const readFileAsDataUrl = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+      } else {
+        reject(new Error("Failed to process the selected image."));
+      }
+    };
+
+    reader.onerror = () => reject(new Error("Failed to read the selected image."));
+    reader.readAsDataURL(file);
+  });
+
 const BusinessProfileSetup = () => {
-  const { user, userRole, refreshRole } = useAuth();
+  const { user, refreshRole } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [existingProfile, setExistingProfile] = useState<any>(null);
@@ -108,92 +123,62 @@ const BusinessProfileSetup = () => {
       toast.error("You must be logged in to create a profile.");
       return;
     }
+
     setLoading(true);
 
     try {
-      if (userRole === "consumer") {
-        throw new Error("This account is currently set up as a customer. Please use a restaurant account to create a business profile.");
-      }
-
-      const profileData = {
-        user_id: user.id,
-        business_name: values.businessName,
-        business_type: values.businessType,
-        description: values.description || null,
-        address: values.address,
-        phone: values.phone,
-        website: values.website || null,
-        logo_url: existingProfile?.logo_url || null,
-      };
-
-      const profileRequest = existingProfile
-        ? supabase
-            .from("business_profiles")
-            .update(profileData)
-            .eq("user_id", user.id)
-        : supabase
-            .from("business_profiles")
-            .insert(profileData);
-
-      const { error } = await withTimeout(profileRequest);
-
-      if (error) throw error;
+      let logoPayload: { dataUrl: string; extension: string; contentType: string } | null = null;
 
       if (logoFile) {
-        try {
-          if (!SUPPORTED_LOGO_TYPES.includes(logoFile.type)) {
-            throw new Error("Please use a JPG, PNG, WebP, or AVIF image for the logo.");
-          }
-
-          if (logoFile.size > MAX_LOGO_SIZE_BYTES) {
-            throw new Error("Logo image is too large. Please use an image under 5MB.");
-          }
-
-          const ext = logoFile.name.split(".").pop() || "png";
-          const path = `${user.id}/logo-${Date.now()}.${ext}`;
-          const { error: uploadError } = await withTimeout(
-            supabase.storage.from("listing-images").upload(path, logoFile, {
-              upsert: true,
-              contentType: logoFile.type || undefined,
-            }),
-            LOGO_UPLOAD_TIMEOUT_MS,
-          );
-
-          if (uploadError) throw uploadError;
-
-          const { data: urlData } = supabase.storage.from("listing-images").getPublicUrl(path);
-          const { error: logoSaveError } = await withTimeout(
-            supabase
-              .from("business_profiles")
-              .update({ logo_url: urlData.publicUrl })
-              .eq("user_id", user.id),
-            LOGO_UPLOAD_TIMEOUT_MS,
-          );
-
-          if (logoSaveError) throw logoSaveError;
-        } catch (logoError: any) {
-          console.error("Logo upload error:", logoError);
-          toast.warning("Profile saved without logo", {
-            description: logoError?.message || "You can upload a smaller logo image later.",
-          });
+        if (!SUPPORTED_LOGO_TYPES.includes(logoFile.type)) {
+          throw new Error("Please use a JPG, PNG, WebP, or AVIF image for the logo.");
         }
+
+        if (logoFile.size > MAX_LOGO_SIZE_BYTES) {
+          throw new Error("Logo image is too large. Please use an image under 5MB.");
+        }
+
+        logoPayload = {
+          dataUrl: await readFileAsDataUrl(logoFile),
+          extension: logoFile.name.split(".").pop()?.toLowerCase() || "png",
+          contentType: logoFile.type,
+        };
       }
 
-      if (!userRole) {
-        try {
-          const { error: roleInsertError } = await withTimeout(
-            supabase.from("user_roles").insert({ user_id: user.id, role: "business" }),
-            5000
-          );
+      const { data, error } = await withTimeout(
+        supabase.functions.invoke("save-business-profile", {
+          body: {
+            businessName: values.businessName,
+            businessType: values.businessType,
+            description: values.description || "",
+            address: values.address,
+            phone: values.phone,
+            website: values.website || "",
+            existingLogoUrl: existingProfile?.logo_url || null,
+            logo: logoPayload,
+          },
+        }),
+      );
 
-          if (roleInsertError && roleInsertError.code !== "23505") {
-            throw roleInsertError;
-          }
+      if (error) {
+        throw error;
+      }
 
-          void refreshRole();
-        } catch (roleError) {
-          console.error("Role sync error:", roleError);
-        }
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      if (data?.profile) {
+        setExistingProfile(data.profile);
+        setLogoPreview(data.profile.logo_url || null);
+      }
+
+      await refreshRole();
+
+      if (data?.logoUploadFailed) {
+        toast.warning("Profile saved without logo", {
+          description: "Your restaurant was created, but the logo upload failed.",
+        });
       }
 
       toast.success(existingProfile ? "Profile updated!" : "Profile created!");
