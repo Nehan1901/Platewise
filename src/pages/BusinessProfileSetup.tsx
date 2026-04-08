@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Store, ImagePlus, X } from "lucide-react";
+import { Loader2, ImagePlus, X } from "lucide-react";
 import BottomNav from "@/components/shared/BottomNav";
 
 const profileFormSchema = z.object({
@@ -28,8 +28,20 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
+const REQUEST_TIMEOUT_MS = 15000;
+
+const createTimeoutController = (timeoutMs = REQUEST_TIMEOUT_MS) => {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+
+  return {
+    signal: controller.signal,
+    clear: () => window.clearTimeout(timeoutId),
+  };
+};
+
 const BusinessProfileSetup = () => {
-  const { user } = useAuth();
+  const { user, refreshRole } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [existingProfile, setExistingProfile] = useState<any>(null);
@@ -46,23 +58,36 @@ const BusinessProfileSetup = () => {
   }, [user]);
 
   const loadProfile = async () => {
-    const { data } = await supabase
-      .from("business_profiles")
-      .select("*")
-      .eq("user_id", user!.id)
-      .maybeSingle();
+    if (!user) return;
 
-    if (data) {
-      setExistingProfile(data);
-      setLogoPreview(data.logo_url);
-      form.reset({
-        businessName: data.business_name,
-        businessType: data.business_type as any,
-        description: data.description || "",
-        address: data.address || "",
-        phone: data.phone || "",
-        website: data.website || "",
-      });
+    const request = createTimeoutController();
+
+    try {
+      const { data, error } = await supabase
+        .from("business_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle()
+        .abortSignal(request.signal);
+
+      if (error) throw error;
+
+      if (data) {
+        setExistingProfile(data);
+        setLogoPreview(data.logo_url);
+        form.reset({
+          businessName: data.business_name,
+          businessType: data.business_type as any,
+          description: data.description || "",
+          address: data.address || "",
+          phone: data.phone || "",
+          website: data.website || "",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to load business profile:", error);
+    } finally {
+      request.clear();
     }
   };
 
@@ -82,12 +107,45 @@ const BusinessProfileSetup = () => {
     setLoading(true);
 
     try {
+      const roleLookupRequest = createTimeoutController();
+
+      try {
+        const { data: currentRole, error: roleLookupError } = await supabase
+          .rpc("get_user_role", { _user_id: user.id })
+          .abortSignal(roleLookupRequest.signal);
+
+        if (roleLookupError) throw roleLookupError;
+
+        if (!currentRole) {
+          const roleInsertRequest = createTimeoutController();
+
+          try {
+            const { error: roleInsertError } = await supabase
+              .from("user_roles")
+              .insert({ user_id: user.id, role: "business" })
+              .abortSignal(roleInsertRequest.signal);
+
+            if (roleInsertError) throw roleInsertError;
+          } finally {
+            roleInsertRequest.clear();
+          }
+
+          await refreshRole();
+        } else if (currentRole !== "business") {
+          throw new Error("This account is currently set up as a customer. Please use a restaurant account to create a business profile.");
+        }
+      } finally {
+        roleLookupRequest.clear();
+      }
+
       let logoUrl = existingProfile?.logo_url || null;
 
       if (logoFile) {
         const ext = logoFile.name.split(".").pop();
         const path = `${user.id}/logo.${ext}`;
+        const uploadRequest = createTimeoutController();
         const { error: uploadError } = await supabase.storage.from("listing-images").upload(path, logoFile, { upsert: true });
+        uploadRequest.clear();
         if (uploadError) {
           console.error("Logo upload error:", uploadError);
         } else {
@@ -107,23 +165,29 @@ const BusinessProfileSetup = () => {
         logo_url: logoUrl,
       };
 
-      console.log("Submitting profile data:", profileData);
+      const saveRequest = createTimeoutController();
 
-      if (existingProfile) {
-        const { error, data } = await supabase.from("business_profiles").update(profileData).eq("id", existingProfile.id).select();
-        console.log("Update result:", { error, data });
+      try {
+        const { error } = await supabase
+          .from("business_profiles")
+          .upsert(profileData, { onConflict: "user_id" })
+          .abortSignal(saveRequest.signal);
+
         if (error) throw error;
-        toast.success("Profile updated!");
-      } else {
-        const { error, data } = await supabase.from("business_profiles").insert(profileData).select();
-        console.log("Insert result:", { error, data });
-        if (error) throw error;
-        toast.success("Profile created!");
+      } finally {
+        saveRequest.clear();
       }
-      navigate("/dashboard-business");
+
+      toast.success(existingProfile ? "Profile updated!" : "Profile created!");
+      navigate("/dashboard-business", { replace: true });
     } catch (error: any) {
       console.error("Profile save error:", error);
-      toast.error("Error saving profile", { description: error.message });
+
+      const description = error?.name === "AbortError"
+        ? "The request took too long. Please try again."
+        : error?.message || "Please try again.";
+
+      toast.error("Error saving profile", { description });
     } finally {
       setLoading(false);
     }
