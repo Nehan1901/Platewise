@@ -7,10 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Store, MapPin, Phone, Globe, Clock, Package } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import BottomNav from "@/components/shared/BottomNav";
 
 const RestaurantPublicProfile = () => {
   const { user, isLoading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -53,7 +56,13 @@ const RestaurantPublicProfile = () => {
     <>
       <Header />
       <main className="px-4 md:px-6 py-6 max-w-3xl mx-auto pb-24 md:pb-6">
-        <PageHeader title="Storefront Preview" />
+        <PageHeader title="Storefront Preview" backTo="/dashboard-business" rightAction={
+          !loading && !profile ? (
+            <Button size="sm" className="rounded-full" onClick={() => navigate("/business-profile")}>
+              Set Up Profile
+            </Button>
+          ) : undefined
+        } />
 
         {loading ? (
           <div className="space-y-4 mt-4">
@@ -64,6 +73,9 @@ const RestaurantPublicProfile = () => {
           <div className="text-center py-16 text-muted-foreground">
             <Store className="h-12 w-12 mx-auto mb-3 opacity-40" />
             <p className="font-sans">Set up your business profile first</p>
+            <Button className="mt-4 rounded-full" onClick={() => navigate("/business-profile")}>
+              Create Business Profile
+            </Button>
           </div>
         ) : (
           <div className="space-y-4 mt-4">

@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 interface PageHeaderProps {
   title: string;
   rightAction?: React.ReactNode;
+  backTo?: string;
 }
 
-const PageHeader = ({ title, rightAction }: PageHeaderProps) => {
+const PageHeader = ({ title, rightAction, backTo }: PageHeaderProps) => {
   const navigate = useNavigate();
 
   return (
@@ -16,7 +17,7 @@ const PageHeader = ({ title, rightAction }: PageHeaderProps) => {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => navigate(-1)}
+          onClick={() => backTo ? navigate(backTo) : navigate(-1)}
           className="rounded-full"
         >
           <ArrowLeft className="h-5 w-5" />
