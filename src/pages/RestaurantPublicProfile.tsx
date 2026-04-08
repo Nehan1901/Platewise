@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Store, MapPin, Phone, Globe, Clock, Package } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import BottomNav from "@/components/shared/BottomNav";
 
 const RestaurantPublicProfile = () => {
