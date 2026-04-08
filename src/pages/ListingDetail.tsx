@@ -627,19 +627,19 @@ const ListingDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Fixed Background Hero Image */}
-      <div className="fixed inset-x-0 top-0 h-80 md:h-96 z-0">
+      <div className="fixed inset-x-0 top-0 z-0 bg-black" style={{ height: '45vh', maxHeight: '400px', minHeight: '280px' }}>
         {listing.images.map((img, idx) => (
           <img
             key={idx}
             src={img}
             alt={`${listing.title} ${idx + 1}`}
             className={cn(
-              "absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-in-out",
+              "absolute inset-0 w-full h-full object-contain transition-opacity duration-700 ease-in-out",
               idx === currentImageIndex ? "opacity-100" : "opacity-0"
             )}
           />
         ))}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50" />
         
         {/* Image Carousel Controls */}
         {listing.images.length > 1 && (
@@ -656,7 +656,7 @@ const ListingDetail = () => {
             >
               <ChevronRight className="h-5 w-5" />
             </button>
-            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-2">
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
               {listing.images.map((_, idx) => (
                 <button
                   key={idx}
@@ -722,7 +722,7 @@ const ListingDetail = () => {
       </header>
 
       {/* Scrollable Content Card */}
-      <div className="relative z-10 mt-64 md:mt-80 pb-28">
+      <div className="relative z-10 pb-28" style={{ marginTop: 'max(220px, calc(45vh - 60px))' }}>
         <div className="bg-background rounded-t-3xl shadow-2xl min-h-screen">
           <div className="p-5 space-y-6">
             {/* Drag Handle */}
