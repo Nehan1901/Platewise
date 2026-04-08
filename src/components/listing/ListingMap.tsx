@@ -11,8 +11,8 @@ interface ListingMapProps {
 
 const MAPBOX_TOKEN = "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw";
 
-const LIGHT_STYLE = "mapbox://styles/mapbox/light-v11";
-const DARK_STYLE = "mapbox://styles/mapbox/dark-v11";
+const LIGHT_STYLE = "mapbox://styles/mapbox/streets-v12";
+const DARK_STYLE = "mapbox://styles/mapbox/navigation-night-v1";
 
 const ListingMap = ({ latitude, longitude, businessName }: ListingMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
