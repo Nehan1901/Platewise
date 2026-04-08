@@ -18,9 +18,9 @@ export default {
     		}
     	},
     	extend: {
-    		fontFamily: {
-    			sans: [
-    				'Work Sans',
+		fontFamily: {
+			sans: [
+				'DM Sans',
     				'ui-sans-serif',
     				'system-ui',
     				'-apple-system',
