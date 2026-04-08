@@ -67,9 +67,9 @@ const CreateListing = () => {
       title: "",
       description: "",
       itemType: "prepared_food",
-      originalPrice: undefined as unknown as number,
-      discountedPrice: undefined as unknown as number,
-      quantity: undefined as unknown as number,
+      originalPrice: "" as unknown as number,
+      discountedPrice: "" as unknown as number,
+      quantity: "" as unknown as number,
       quantityUnit: "servings",
       dietaryInfo: [], 
       allergenInfo: [],
@@ -104,7 +104,15 @@ const CreateListing = () => {
   };
 
   const onSubmit = async (values: ListingFormValues) => {
-    if (!user || !businessId) return;
+    if (!user) {
+      toast.error("Please log in to create a listing.");
+      return;
+    }
+    if (!businessId) {
+      toast.error("No business profile found.", { description: "Please set up your business profile first." });
+      navigate("/business-profile");
+      return;
+    }
     setLoading(true);
 
     try {
