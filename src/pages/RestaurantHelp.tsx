@@ -37,7 +37,7 @@ const RestaurantHelp = () => {
     <>
       <Header />
       <main className="px-4 md:px-6 py-6 max-w-3xl mx-auto pb-24 md:pb-6">
-        <PageHeader title="Help & Support" />
+        <PageHeader title="Help & Support" backTo="/dashboard-business" />
 
         {/* Search */}
         <div className="relative mt-4 mb-6">

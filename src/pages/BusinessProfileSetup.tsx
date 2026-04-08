@@ -123,7 +123,7 @@ const BusinessProfileSetup = () => {
     <>
       <Header />
       <main className="px-4 md:px-6 py-6 max-w-3xl mx-auto pb-24 md:pb-6">
-        <PageHeader title="Business Profile" />
+        <PageHeader title="Business Profile" backTo="/dashboard-business" />
         <Card className="mt-4 shadow-card">
           <CardHeader>
             <CardTitle>{existingProfile ? "Edit" : "Set Up"} Your Restaurant</CardTitle>

@@ -146,7 +146,7 @@ const RestaurantOrders = () => {
     <>
       <Header />
       <main className="px-4 md:px-6 py-6 max-w-4xl mx-auto pb-24 md:pb-6">
-        <PageHeader title="Order Management" />
+        <PageHeader title="Order Management" backTo="/dashboard-business" />
 
         <div className="relative mt-4 mb-4">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

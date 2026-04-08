@@ -83,7 +83,7 @@ const RestaurantWallet = () => {
     <>
       <Header />
       <main className="px-4 md:px-6 py-6 max-w-3xl mx-auto pb-24 md:pb-6">
-        <PageHeader title="Earnings" />
+        <PageHeader title="Earnings" backTo="/dashboard-business" />
 
         {loading ? (
           <div className="space-y-4 mt-4">

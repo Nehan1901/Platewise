@@ -88,7 +88,7 @@ const MyListings = () => {
     <>
       <Header />
       <main className="px-4 md:px-6 py-6 max-w-4xl mx-auto pb-24 md:pb-6">
-        <PageHeader title="My Listings" />
+        <PageHeader title="My Listings" backTo="/dashboard-business" />
 
         <div className="flex justify-between items-center mt-4 mb-4">
           <p className="text-sm text-muted-foreground font-sans">{listings.length} listing{listings.length !== 1 ? "s" : ""}</p>
