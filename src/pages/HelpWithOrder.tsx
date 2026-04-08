@@ -20,37 +20,34 @@ interface Order {
 
 const HelpWithOrder = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!user) {
-      navigate("/");
-      return;
-    }
-    fetchOrders();
-  }, [user, navigate]);
-
-  const fetchOrders = async () => {
+    if (authLoading) return;
     if (!user) return;
 
-    try {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("id, listing_title, business_name, status, created_at")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(10);
+    setLoading(true);
+    const fetchOrders = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("orders")
+          .select("id, listing_title, business_name, status, created_at")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(10);
 
-      if (error) throw error;
-      setOrders(data || []);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+        if (error) throw error;
+        setOrders(data || []);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrders();
+  }, [user, authLoading]);
 
   const commonIssues = [
     { id: "pickup", label: "I couldn't pick up my order" },

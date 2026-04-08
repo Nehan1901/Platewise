@@ -48,12 +48,9 @@ const OrderHistory = () => {
 
   useEffect(() => {
     if (authLoading) return;
+    if (!user) return;
 
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-
+    setLoading(true);
     const fetchOrders = async () => {
       const { data, error } = await supabase
         .from("orders")
