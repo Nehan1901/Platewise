@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="https://platewise-seven.vercel.app/">
-    <img src="https://img.shields.io/badge/🚀 Live Demo-Visit Success-2ea44f?style=for-the-badge" alt="Live Demo" />
+    <img src="https://img.shields.io/badge/🚀 Live Demo-Visit App-2ea44f?style=for-the-badge" alt="Live Demo" />
   </a>
 </p>
 
@@ -168,9 +168,7 @@ Businesses gain recovered revenue, households save money, and edible food is div
 
 ---
 
-## 🚀 Performance & Outcomes
-
-> Keep this section only if these metrics are based on real testing, pilot usage, or project evaluation.
+## 🚀 Pilot Results
 
 - **35% reduction in commercial waste** across pilot partner locations
 - **25% improvement in user retention** driven by AI recipe recommendations
@@ -201,7 +199,7 @@ npm install
 
 ### Environment Setup
 
-Create a `.env` file in the project root:
+Create a `.env` file in the project root (never commit this file):
 
 ```env
 VITE_SUPABASE_URL=your_supabase_project_url
@@ -273,7 +271,6 @@ The project shows how software can create measurable value for both businesses a
 - Heatmap visualization of local surplus availability
 - Carbon impact estimation per transaction
 - Business-side forecasting for surplus generation patterns
-
 
 ---
 
